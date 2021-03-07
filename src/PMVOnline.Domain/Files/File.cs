@@ -9,6 +9,10 @@ namespace PMVOnline.Files
 {
     public class File : FullAuditedAggregateRoot<Guid>
     {
+        public File(Guid id):base(id)
+        {
+
+        }
         public string Name { get; set; }
         public long Size { get; set; }
         public string Path { get; set; }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PMVOnline.Files;
 using PMVOnline.Tasks;
 using Volo.Abp.Identity;
 
@@ -13,7 +14,8 @@ namespace PMVOnline
                 .ForMember(d=>d.TaskFiles,c=>c.Ignore());
             CreateMap<IdentityUser, UserDto>();
             CreateMap<IdentityUserRole, RoleDto>();
-            //.ForMember(d=>d.)
+            CreateMap<File, FileDto>();
+            //.ForMember=>d.)
             //.MapExtraProperties();
         }
     }
