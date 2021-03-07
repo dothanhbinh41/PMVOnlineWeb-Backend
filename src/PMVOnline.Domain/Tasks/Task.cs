@@ -21,5 +21,6 @@ namespace PMVOnline.Tasks
 
         public virtual TaskFile[] TaskFiles { get; set; }
         public virtual ReferenceTask[] ReferenceTasks { get; set; }
+        public virtual TaskHistory[] TaskHistory { get; set; }
     } 
 }

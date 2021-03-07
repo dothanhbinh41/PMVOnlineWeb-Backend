@@ -16,5 +16,6 @@ namespace PMVOnline.Tasks
         Task<bool> FollowTask(FollowTaskRequest request);
         Task<UserDto> GetAssignee(Target target);
         Task<UserDto[]> GetAllMember(Target target);
+        Task<MyActionDto[]> GetMyActions();
     }
 }

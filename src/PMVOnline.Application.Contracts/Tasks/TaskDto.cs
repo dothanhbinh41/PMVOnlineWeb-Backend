@@ -84,4 +84,9 @@ namespace PMVOnline.Tasks
     public class TaskActionDto
     {
     }
+
+    public class MyActionDto
+    {
+        public Guid TaskId { get; set; }
+    }
 }

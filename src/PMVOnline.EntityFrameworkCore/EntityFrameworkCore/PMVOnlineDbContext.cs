@@ -26,11 +26,12 @@ namespace PMVOnline.EntityFrameworkCore
         //public DbSet<AppUser> Users { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Task> Tasks { get; set; }
-        public DbSet<TaskAction> TaskActions { get; set; }
+        public DbSet<TaskHistory> TaskHistories { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
         public DbSet<TaskFollow> TaskFollows { get; set; }
         public DbSet<ReferenceTask> ReferenceTasks { get; set; }
         public DbSet<TaskFile> TaskFiles { get; set; }
+        public DbSet<TaskNotification> TaskTaskNotifications { get; set; }
         public DbSet<TaskCommentFile> TaskCommentFiles { get; set; }
 
         /* Add DbSet properties for your Aggregate Roots / Entities here.
