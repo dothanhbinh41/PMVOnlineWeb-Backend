@@ -13,6 +13,10 @@ namespace PMVOnline.Tasks
     {
         public ulong TaskId { get; set; }
         public Guid UserId { get; set; }
-        public bool Followed { get; set; }  
+        public bool Followed { get; set; }
+
+
+        [ForeignKey(nameof(TaskId))]
+        public virtual Task Task { get; set; }
     }
 }

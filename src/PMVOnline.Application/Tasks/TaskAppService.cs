@@ -20,19 +20,21 @@ namespace PMVOnline.Tasks
     public class TaskAppService : ApplicationService, ITaskAppService
     {
         readonly IRepository<Task, ulong> taskRepository;
-        readonly IRepository<TaskHistory, Guid> taskActionRepository;
+        readonly IRepository<TaskAction, Guid> taskActionRepository;
         readonly IRepository<TaskComment, Guid> taskCommentRepository;
         readonly IRepository<TaskFollow, Guid> taskFollowRepostiory;
         readonly IRepository<IdentityUser, Guid> appUserRepository;
         readonly IRepository<IdentityRole, Guid> roleRepository;
+        private readonly IdentityUserManager identityUserManager;
 
         public TaskAppService(
             IRepository<Task, ulong> taskRepository,
-            IRepository<TaskHistory, Guid> taskActionRepository,
+            IRepository<TaskAction, Guid> taskActionRepository,
             IRepository<TaskComment, Guid> taskCommentRepository,
             IRepository<TaskFollow, Guid> taskFollowRepostiory,
             IRepository<IdentityUser, Guid> appUserRepository,
-            IRepository<IdentityRole, Guid> roleRepository
+            IRepository<IdentityRole, Guid> roleRepository,
+            IdentityUserManager identityUserManager
             )
         {
             this.taskRepository = taskRepository;
@@ -41,6 +43,7 @@ namespace PMVOnline.Tasks
             this.taskFollowRepostiory = taskFollowRepostiory;
             this.appUserRepository = appUserRepository;
             this.roleRepository = roleRepository;
+            this.identityUserManager = identityUserManager;
         }
 
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
@@ -52,7 +55,7 @@ namespace PMVOnline.Tasks
             var id = CurrentUser.Id.Value;
             if (result != null)
             {
-                await taskActionRepository.InsertAsync(new TaskHistory { TaskId = task.Id, ActorId = id, Action = HistoryType.CreateTask });
+                await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, ActorId = id, Action = ActionType.CreateTask });
             }
 
             return ObjectMapper.Map<Task, TaskDto>(result);
@@ -73,7 +76,7 @@ namespace PMVOnline.Tasks
             }
 
             var updated = await taskRepository.UpdateAsync(task);
-            await taskActionRepository.InsertAsync(new TaskHistory { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Completed ? HistoryType.CompletedTask : HistoryType.IncompletedTask, Note = request.Note });
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Completed ? ActionType.CompletedTask : ActionType.IncompletedTask, Note = request.Note });
             return true;
         }
 
@@ -89,17 +92,17 @@ namespace PMVOnline.Tasks
                 task.Followed = request.Follow;
                 await taskFollowRepostiory.UpdateAsync(task);
             }
-            await taskActionRepository.InsertAsync(new TaskHistory { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Follow ? HistoryType.Follow : HistoryType.Unfollow });
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Follow ? ActionType.Follow : ActionType.Unfollow });
             return true;
         }
 
         public async Task<UserDto[]> GetAllMember(Target target)
         {
             string dep = RoleName.Admin;
-            IdentityUser[] users = null;
             if (target == Target.Other)
             {
-                users = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Count > 0).ToArray();
+                var users = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Count > 0).ToArray();
+                return ObjectMapper.Map<IdentityUser[], UserDto[]>(users);
             }
 
             switch (target)
@@ -119,17 +122,9 @@ namespace PMVOnline.Tasks
                     break;
 
             }
-
-            if (users == null)
-            {
-                var role = await roleRepository.FirstOrDefaultAsync(d => d.Name == dep);
-                if (role == null)
-                {
-                    throw new Exception();
-                }
-                users = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Any(c => c.RoleId == role.Id)).ToArray();
-            }
-            return ObjectMapper.Map<IdentityUser[], UserDto[]>(users);
+             
+            var users2 = (await identityUserManager.GetUsersInRoleAsync(dep)).ToArray(); 
+            return ObjectMapper.Map<IdentityUser[], UserDto[]>(users2);
         }
 
 
@@ -160,14 +155,8 @@ namespace PMVOnline.Tasks
                     break;
 
             }
-
-            var role = await roleRepository.FirstOrDefaultAsync(d => d.Name == dep);
-            if (role == null)
-            {
-                throw new Exception();
-            }
-            var users2 = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Any(c => c.RoleId == role.Id)).Select(d => d.Id).ToArray();
-            return await GetUserForTask(users2);
+            var users2 = await identityUserManager.GetUsersInRoleAsync(dep);
+            return await GetUserForTask(users2.Select(c => c.Id).ToArray());
         }
 
 
@@ -195,11 +184,11 @@ namespace PMVOnline.Tasks
         public Task<TaskActionDto[]> GetTaskHistory(TaskHistoryRequestDto request)
         {
             var tasks = taskActionRepository
-                .Where(d => d.TaskId == request.TaskId) 
+                .Where(d => d.TaskId == request.TaskId)
                 .Skip(request.SkipCount)
                 .Take(request.MaxResultCount)
                 .ToList();
-            var actions = tasks.Select(d => ObjectMapper.Map<TaskHistory, TaskActionDto>(d)).ToArray();
+            var actions = tasks.Select(d => ObjectMapper.Map<TaskAction, TaskActionDto>(d)).ToArray();
             return STask.FromResult(actions);
         }
 
@@ -214,7 +203,7 @@ namespace PMVOnline.Tasks
             task.Status = request.Approved ? Status.Approved : Status.Rejected;
 
             var updated = await taskRepository.UpdateAsync(task);
-            await taskActionRepository.InsertAsync(new TaskHistory { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Approved ? HistoryType.ApprovedTask : HistoryType.RejectedTask, Note = request.Note });
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, ActorId = CurrentUser.Id, Action = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask, Note = request.Note });
             return true;
         }
 
@@ -228,7 +217,7 @@ namespace PMVOnline.Tasks
 
             task.Status = Status.Pending;
             var updated = await taskRepository.UpdateAsync(task);
-            await taskActionRepository.InsertAsync(new TaskHistory { TaskId = request.Id, ActorId = CurrentUser.Id, Action = HistoryType.Reopen });
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, ActorId = CurrentUser.Id, Action = ActionType.Reopen });
             return true;
         }
 
@@ -237,26 +226,35 @@ namespace PMVOnline.Tasks
             var result = await taskCommentRepository.InsertAsync(ObjectMapper.Map<CommentRequestDto, TaskComment>(request));
             if (result != null)
             {
-                await taskActionRepository.InsertAsync(new TaskHistory { TaskId = request.TaskId, ActorId = CurrentUser.Id, Action = HistoryType.Comment });
+                await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.TaskId, ActorId = CurrentUser.Id, Action = ActionType.Comment });
             }
             return true;
         }
 
         public async Task<MyActionDto[]> GetMyActions()
         {
-            //var uid = CurrentUser.Id.Value;
-            //var user = (await appUserRepository.WithDetailsAsync(d => d.Roles)).FirstOrDefault(d => d.Id == uid);
-            //var adminRole = roleRepository.FirstOrDefault(d => d.Name == RoleName.Admin);
-            //if (user.Roles.Any(c => c.RoleId == adminRole.Id))
-            //{
+            bool isAdmin = false;
+            var uid = CurrentUser.Id.Value;
+            var user = await appUserRepository.GetAsync(uid);
+            var roles = await identityUserManager.GetRolesAsync(user);
+            isAdmin = roles.Any(c => c == RoleName.Admin);
+            /// user : - create, assign, follow
+            /// 
+            /// admin : pending
+            /// 
 
+            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.CreatorId == uid && d.LastHistory != null).TakeLast(20).ToArray();
+            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Assignee == uid && d.LastHistory != null).OrderByDescending(c => c.LastHistory.CreationTime).Take(20).ToArray();
+            var followTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory, c => c.TaskFollows)).Where(d => d.TaskFollows.Any(c => c.UserId == uid) && d.LastHistory != null).TakeLast(20).ToArray();
+            if (isAdmin)
+            {
+                var pending = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Status == Status.Pending).TakeLast(20).ToArray();
+                var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
+                return ObjectMapper.Map<Task[], MyActionDto[]>(adminTasks);
+            }
 
-            //}
-
-
-            //var myTask = taskRepository.Where(d => d.Sta\
-
-            throw new Exception();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
+            return ObjectMapper.Map<Task[], MyActionDto[]>(tasks);
         }
     }
 }

@@ -29,9 +29,9 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureByConvention();
                 b.ConfigureExtraProperties();
             });
-            builder.Entity<TaskHistory>(b =>
+            builder.Entity<TaskAction>(b =>
             {
-                b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskHistories");
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskActions");
                 b.ConfigureByConvention(); 
                 b.ConfigureExtraProperties();
             });
@@ -69,14 +69,7 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskCommentFiles");
                 b.ConfigureByConvention();
                 b.ConfigureExtraProperties();
-            });
-            
-            builder.Entity<TaskNotification>(b =>
-            {
-                b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskNotifications");
-                b.ConfigureByConvention();
-                b.ConfigureExtraProperties();
-            });
+            }); 
         }
     }
 }

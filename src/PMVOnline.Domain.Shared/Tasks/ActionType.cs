@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PMVOnline.Tasks
 {
-    public enum HistoryType
+    public enum ActionType
     {
         CreateTask, ApprovedTask, RejectedTask, Comment, CompletedTask, IncompletedTask, ChangeAssignee, Reopen, Follow, Unfollow
     }

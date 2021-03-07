@@ -15,12 +15,16 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
-        public  Target Target { get; set; }
+        public Target Target { get; set; }
         public Status Status { get; set; }
         public Guid Assignee { get; set; }
 
         public virtual TaskFile[] TaskFiles { get; set; }
         public virtual ReferenceTask[] ReferenceTasks { get; set; }
-        public virtual TaskHistory[] TaskHistory { get; set; }
-    } 
+        public virtual TaskAction[] TaskHistory { get; set; }
+         
+        [NotMapped]
+        public virtual TaskAction LastHistory => TaskHistory.LastOrDefault();
+        public virtual TaskFollow[] TaskFollows { get; set; }
+    }
 }

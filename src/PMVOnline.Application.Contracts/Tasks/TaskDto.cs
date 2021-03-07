@@ -85,8 +85,23 @@ namespace PMVOnline.Tasks
     {
     }
 
+    public class LastTaskHistoryDto
+    {
+        public Guid ActorId { get; set; }
+        public ActionType Action { get; set; }
+
+    }
+
     public class MyActionDto
     {
         public Guid TaskId { get; set; }
+        public string Title { get; set; } 
+        public DateTime DueDate { get; set; }
+        public DateTime? CompletedDate { get; set; }
+        public Priority Priority { get; set; }
+        public Target Target { get; set; }
+        public Status Status { get; set; }
+        public Guid Assignee { get; set; }
+        public LastTaskHistoryDto LastAction { get; set; }
     }
 }
