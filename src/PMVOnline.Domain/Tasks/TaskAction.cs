@@ -22,5 +22,7 @@ namespace PMVOnline.Tasks
 
         [ForeignKey(nameof(TaskId))]
         public virtual Task Task { get; set; }
+        [NotMapped]
+        public virtual IdentityUser Actor { get; set; }
     } 
 }

@@ -16,7 +16,7 @@ namespace PMVOnline
             CreateMap<IdentityUserRole, RoleDto>();
             CreateMap<File, FileDto>();
             CreateMap<TaskAction, LastTaskHistoryDto>();
-            CreateMap<Task, MyActionDto>()
+            CreateMap<Task, MyTaskDto>()
                 .ForMember(d => d.LastAction, c => c.MapFrom(d => d.LastHistory))
                 .ForMember(d => d.TaskId, c => c.MapFrom(d => d.Id));
             //.ForMember=>d.)

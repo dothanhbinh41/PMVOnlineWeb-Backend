@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -122,8 +123,8 @@ namespace PMVOnline.Tasks
                     break;
 
             }
-             
-            var users2 = (await identityUserManager.GetUsersInRoleAsync(dep)).ToArray(); 
+
+            var users2 = (await identityUserManager.GetUsersInRoleAsync(dep)).ToArray();
             return ObjectMapper.Map<IdentityUser[], UserDto[]>(users2);
         }
 
@@ -231,7 +232,7 @@ namespace PMVOnline.Tasks
             return true;
         }
 
-        public async Task<MyActionDto[]> GetMyActions()
+        public async Task<MyTaskDto[]> GetMyActions()
         {
             bool isAdmin = false;
             var uid = CurrentUser.Id.Value;
@@ -250,11 +251,59 @@ namespace PMVOnline.Tasks
             {
                 var pending = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Status == Status.Pending).TakeLast(20).ToArray();
                 var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
-                return ObjectMapper.Map<Task[], MyActionDto[]>(adminTasks);
+                return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
             }
 
             var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
-            return ObjectMapper.Map<Task[], MyActionDto[]>(tasks);
+            List<System.Threading.Tasks.Task> taskGetUser = new List<System.Threading.Tasks.Task>();
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                var task = tasks[i];
+                if (task.LastHistory?.ActorId.HasValue == true)
+                {
+                    taskGetUser.Add(appUserRepository.GetAsync(task.LastHistory.ActorId.Value).ContinueWith((d, obj) => obj = d.Result, task.LastHistory.Actor));
+                }
+
+            }
+            await System.Threading.Tasks.Task.WhenAll(taskGetUser);
+            return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
+        }
+
+        public async Task<MyTaskDto[]> GetMyTasks(PagedResultRequestDto request)
+        {
+            //bool isAdmin = false;
+            var uid = CurrentUser.Id.Value;
+            //var user = await appUserRepository.GetAsync(uid);
+            //var roles = await identityUserManager.GetRolesAsync(user);
+            //isAdmin = roles.Any(c => c == RoleName.Admin);
+            /// user : - create, assign, follow
+            /// 
+            /// admin : pending
+            /// 
+
+            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.CreatorId == uid && d.LastHistory != null).ToArray();
+            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Assignee == uid && d.LastHistory != null).OrderByDescending(c => c.LastHistory.CreationTime).ToArray();
+            var followTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory, c => c.TaskFollows)).Where(d => d.TaskFollows.Any(c => c.UserId == uid) && d.LastHistory != null).ToArray();
+            //if (isAdmin)
+            //{
+            //    var pending = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Status == Status.Pending).TakeLast(20).ToArray();
+            //    var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
+            //    return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
+            //}
+
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.LastHistory.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
+            List<System.Threading.Tasks.Task> taskGetUser = new List<System.Threading.Tasks.Task>();
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                var task = tasks[i];
+                if (task.LastHistory?.ActorId.HasValue == true)
+                {
+                    taskGetUser.Add(appUserRepository.GetAsync(task.LastHistory.ActorId.Value).ContinueWith((d, obj) => obj = d.Result, task.LastHistory.Actor));
+                }
+
+            }
+            await System.Threading.Tasks.Task.WhenAll(taskGetUser);
+            return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
         }
     }
 }

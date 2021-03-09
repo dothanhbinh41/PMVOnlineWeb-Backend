@@ -26,5 +26,8 @@ namespace PMVOnline.Tasks
         [NotMapped]
         public virtual TaskAction LastHistory => TaskHistory.LastOrDefault();
         public virtual TaskFollow[] TaskFollows { get; set; }
+
+        [NotMapped]
+        public virtual TaskFollow[] TaskFollows { get; set; }
     }
 }

@@ -88,11 +88,12 @@ namespace PMVOnline.Tasks
     public class LastTaskHistoryDto
     {
         public Guid ActorId { get; set; }
+        public UserDto Actor { get; set; }
         public ActionType Action { get; set; }
 
     }
 
-    public class MyActionDto
+    public class MyTaskDto
     {
         public Guid TaskId { get; set; }
         public string Title { get; set; } 
@@ -103,5 +104,5 @@ namespace PMVOnline.Tasks
         public Status Status { get; set; }
         public Guid Assignee { get; set; }
         public LastTaskHistoryDto LastAction { get; set; }
-    }
+    } 
 }

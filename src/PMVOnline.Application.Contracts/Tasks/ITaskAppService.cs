@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 
 namespace PMVOnline.Tasks
 {
@@ -16,6 +17,7 @@ namespace PMVOnline.Tasks
         Task<bool> FollowTask(FollowTaskRequest request);
         Task<UserDto> GetAssignee(Target target);
         Task<UserDto[]> GetAllMember(Target target);
-        Task<MyActionDto[]> GetMyActions();
+        Task<MyTaskDto[]> GetMyActions();
+        Task<MyTaskDto[]> GetMyTasks(PagedResultRequestDto request);
     }
 }
