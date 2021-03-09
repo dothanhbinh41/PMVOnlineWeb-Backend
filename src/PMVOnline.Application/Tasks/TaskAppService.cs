@@ -281,9 +281,9 @@ namespace PMVOnline.Tasks
             /// admin : pending
             /// 
 
-            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.CreatorId == uid && d.LastHistory != null).ToArray();
-            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Assignee == uid && d.LastHistory != null).OrderByDescending(c => c.LastHistory.CreationTime).ToArray();
-            var followTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory, c => c.TaskFollows)).Where(d => d.TaskFollows.Any(c => c.UserId == uid) && d.LastHistory != null).ToArray();
+            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.CreatorId == uid).ToArray().ToArray();
+            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Assignee == uid).ToArray();
+            var followTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory, c => c.TaskFollows)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).ToArray();
             //if (isAdmin)
             //{
             //    var pending = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Status == Status.Pending).TakeLast(20).ToArray();
@@ -291,7 +291,7 @@ namespace PMVOnline.Tasks
             //    return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
             //}
 
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.LastHistory.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Where(d => d.LastHistory != null).OrderByDescending(d => d.LastHistory.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
             List<System.Threading.Tasks.Task> taskGetUser = new List<System.Threading.Tasks.Task>();
             for (int i = 0; i < tasks.Length; i++)
             {

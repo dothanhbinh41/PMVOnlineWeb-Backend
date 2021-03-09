@@ -19,15 +19,12 @@ namespace PMVOnline.Tasks
         public Status Status { get; set; }
         public Guid Assignee { get; set; }
 
-        public virtual TaskFile[] TaskFiles { get; set; }
-        public virtual ReferenceTask[] ReferenceTasks { get; set; }
-        public virtual TaskAction[] TaskHistory { get; set; }
+        public virtual ICollection<TaskFile> TaskFiles { get; set; }
+        public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; }
+        public virtual ICollection<TaskAction> TaskHistory { get; set; }
          
         [NotMapped]
         public virtual TaskAction LastHistory => TaskHistory.LastOrDefault();
-        public virtual TaskFollow[] TaskFollows { get; set; }
-
-        [NotMapped]
-        public virtual TaskFollow[] TaskFollows { get; set; }
+        public virtual ICollection<TaskFollow> TaskFollows { get; set; } 
     }
 }
