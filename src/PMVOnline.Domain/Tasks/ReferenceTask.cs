@@ -6,8 +6,8 @@ namespace PMVOnline.Tasks
 {
     public class ReferenceTask : FullAuditedAggregateRoot<Guid>
     { 
-        public ulong TaskId { get; set; }
-        public ulong ReferenceTaskId { get; set; }
+        public long TaskId { get; set; }
+        public long ReferenceTaskId { get; set; }
 
         [ForeignKey(nameof(TaskId))] 
         public virtual Task Task { get; set; } 

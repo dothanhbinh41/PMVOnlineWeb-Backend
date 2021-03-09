@@ -7,7 +7,7 @@ namespace PMVOnline.Tasks
 {
     public class TaskFile : FullAuditedAggregateRoot<Guid>
     {
-        public ulong TaskId { get; set; }
+        public long TaskId { get; set; }
         public Guid FileId { get; set; }
 
         [ForeignKey(nameof(FileId))]

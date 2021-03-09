@@ -13,7 +13,7 @@ namespace PMVOnline.Tasks
 {
     public class TaskAction : FullAuditedAggregateRoot<Guid>
     {
-        public ulong TaskId { get; set; }
+        public long TaskId { get; set; }
         public Guid? ActorId { get; set; }
         public ActionType Action { get; set; }
         public string Note { get; set; }

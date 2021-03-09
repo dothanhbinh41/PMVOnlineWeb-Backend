@@ -11,7 +11,7 @@ namespace PMVOnline.Tasks
 {
     public class TaskFollow : FullAuditedAggregateRoot<Guid>
     {
-        public ulong TaskId { get; set; }
+        public long TaskId { get; set; }
         public Guid UserId { get; set; }
         public bool Followed { get; set; }
 

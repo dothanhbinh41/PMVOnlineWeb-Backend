@@ -20,7 +20,7 @@ namespace PMVOnline.Tasks
 {
     public class TaskAppService : ApplicationService, ITaskAppService
     {
-        readonly IRepository<Task, ulong> taskRepository;
+        readonly IRepository<Task, long> taskRepository;
         readonly IRepository<TaskAction, Guid> taskActionRepository;
         readonly IRepository<TaskComment, Guid> taskCommentRepository;
         readonly IRepository<TaskFollow, Guid> taskFollowRepostiory;
@@ -29,7 +29,7 @@ namespace PMVOnline.Tasks
         private readonly IdentityUserManager identityUserManager;
 
         public TaskAppService(
-            IRepository<Task, ulong> taskRepository,
+            IRepository<Task, long> taskRepository,
             IRepository<TaskAction, Guid> taskActionRepository,
             IRepository<TaskComment, Guid> taskCommentRepository,
             IRepository<TaskFollow, Guid> taskFollowRepostiory,
@@ -50,9 +50,8 @@ namespace PMVOnline.Tasks
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
         {
             var task = ObjectMapper.Map<CreateTaskRequestDto, Task>(request);
-
             var assignee = await appUserRepository.GetAsync(request.Assignee);
-            var result = await taskRepository.InsertAsync(task);
+            var result = await taskRepository.InsertAsync(task, true);
             var id = CurrentUser.Id.Value;
             if (result != null)
             {
@@ -298,7 +297,16 @@ namespace PMVOnline.Tasks
                 var task = tasks[i];
                 if (task.LastHistory?.ActorId.HasValue == true)
                 {
-                    taskGetUser.Add(appUserRepository.GetAsync(task.LastHistory.ActorId.Value).ContinueWith((d, obj) => obj = d.Result, task.LastHistory.Actor));
+                    taskGetUser.Add(appUserRepository.GetAsync(task.LastHistory.ActorId.Value).ContinueWith(
+                        (d, obj) => {
+                            if(obj is Task t && t.LastHistory!=null)
+                            {
+                                t.LastHistory.Actor = d.Result;
+                            }
+                        } ,
+                        task));
+                  //  var user = await appUserRepository.GetAsync(task.LastHistory.ActorId.Value);
+                   // task.LastHistory.Actor = user;
                 }
 
             }

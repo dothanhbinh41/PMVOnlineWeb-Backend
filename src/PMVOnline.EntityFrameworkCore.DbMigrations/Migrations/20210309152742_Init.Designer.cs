@@ -10,8 +10,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PMVOnline.Migrations
 {
     [DbContext(typeof(PMVOnlineMigrationsDbContext))]
-    [Migration("20210307150719_RemoveTaskNotification")]
-    partial class RemoveTaskNotification
+    [Migration("20210309152742_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -127,11 +127,11 @@ namespace PMVOnline.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<ulong>("ReferenceTaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("ReferenceTaskId")
+                        .HasColumnType("bigint");
 
-                    b.Property<ulong>("TaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -142,9 +142,9 @@ namespace PMVOnline.Migrations
 
             modelBuilder.Entity("PMVOnline.Tasks.Task", b =>
                 {
-                    b.Property<ulong>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint unsigned");
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("Assignee")
                         .HasColumnType("char(36)");
@@ -153,22 +153,29 @@ namespace PMVOnline.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40) CHARACTER SET utf8mb4")
+                        .HasColumnName("ConcurrencyStamp");
 
                     b.Property<string>("Content")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreationTime");
 
                     b.Property<Guid?>("CreatorId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("char(36)")
+                        .HasColumnName("CreatorId");
 
                     b.Property<Guid?>("DeleterId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("char(36)")
+                        .HasColumnName("DeleterId");
 
                     b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("DeletionTime");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime(6)");
@@ -178,13 +185,18 @@ namespace PMVOnline.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
 
                     b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("LastModificationTime");
 
                     b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("char(36)")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<int>("Priority")
                         .HasColumnType("int");
@@ -258,8 +270,8 @@ namespace PMVOnline.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<ulong>("TaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -317,8 +329,8 @@ namespace PMVOnline.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<ulong>("TaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
@@ -440,8 +452,8 @@ namespace PMVOnline.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<ulong>("TaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -501,8 +513,8 @@ namespace PMVOnline.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<ulong>("TaskId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");

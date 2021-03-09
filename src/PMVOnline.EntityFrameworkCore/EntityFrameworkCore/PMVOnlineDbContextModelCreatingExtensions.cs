@@ -20,19 +20,23 @@ namespace PMVOnline.EntityFrameworkCore
             /* Configure your own tables/entities inside here */
             builder.Entity<Task>(b =>
             {
-                b.ToTable(PMVOnlineConsts.DbTablePrefix + "Tasks");  
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "Tasks");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
             builder.Entity<File>(b =>
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "Files");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
             builder.Entity<TaskAction>(b =>
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskActions");
-                b.ConfigureByConvention(); 
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
 
@@ -40,6 +44,7 @@ namespace PMVOnline.EntityFrameworkCore
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskComments");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
 
@@ -47,13 +52,15 @@ namespace PMVOnline.EntityFrameworkCore
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskFollows");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
 
             builder.Entity<ReferenceTask>(b =>
             {
-                b.ToTable(PMVOnlineConsts.DbTablePrefix + "ReferenceTasks"); 
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "ReferenceTasks");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
 
@@ -61,6 +68,7 @@ namespace PMVOnline.EntityFrameworkCore
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskFiles");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             });
 
@@ -68,6 +76,7 @@ namespace PMVOnline.EntityFrameworkCore
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskCommentFiles");
                 b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
             }); 
         }

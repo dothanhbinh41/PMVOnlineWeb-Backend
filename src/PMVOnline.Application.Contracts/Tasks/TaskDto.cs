@@ -14,49 +14,53 @@ namespace PMVOnline.Tasks
         public Priority Priority { get; set; }
         public DateTime DueDate { get; set; }
         public Guid[] Files { get; set; }
-        public ulong[] ReferenceTasks { get; set; }
+        public long[] ReferenceTasks { get; set; }
         public Guid Assignee { get; set; }
     }
 
     public class TaskHistoryRequestDto : PagedResultRequestDto
     {
-        public ulong TaskId { get; set; }
+        public long TaskId { get; set; }
     }
 
     public class CommentRequestDto
     {
-        public ulong TaskId { get; set; }
+        public long TaskId { get; set; }
         public string Comment { get; set; }
         public Guid[] Files { get; set; }
     }
 
-    public class ProcessTaskRequest : EntityDto<ulong>
+    public class ProcessTaskRequest : EntityDto<long>
     {
         public bool Approved { get; set; }
         public string Note { get; set; }
     }
 
-    public class FinishTaskRequest : EntityDto<ulong>
+    public class FinishTaskRequest : EntityDto<long>
     {
         public bool Completed { get; set; }
         public DateTime? CompletedDate { get; set; }
         public string Note { get; set; }
     }
 
-    public class ReopenTaskRequest : EntityDto<ulong>
+    public class ReopenTaskRequest : EntityDto<long>
     {
 
     }
 
-    public class FollowTaskRequest : EntityDto<ulong>
+    public class FollowTaskRequest : EntityDto<long>
     {
         public bool Follow { get; set; }
     }
 
-    public class UserDto : EntityDto<Guid>
+    public class SimpleUserDto : EntityDto<Guid>
     {
         public string Name { get; set; }
-        public string Surname { get; set; }
+        public string Surname { get; set; } 
+    }
+
+    public class UserDto : SimpleUserDto
+    { 
         public ICollection<RoleDto> Roles { set; get; }
     }
 
@@ -65,7 +69,7 @@ namespace PMVOnline.Tasks
         public Guid RoleId { get; set; }
     }
 
-    public class TaskDto : EntityDto<ulong>
+    public class TaskDto : EntityDto<long>
     {
         public string Title { get; set; }
         public string Content { get; set; }
@@ -88,14 +92,14 @@ namespace PMVOnline.Tasks
     public class LastTaskHistoryDto
     {
         public Guid ActorId { get; set; }
-        public UserDto Actor { get; set; }
+        public SimpleUserDto Actor { get; set; }
         public ActionType Action { get; set; }
 
     }
 
     public class MyTaskDto
     {
-        public Guid TaskId { get; set; }
+        public long TaskId { get; set; }
         public string Title { get; set; } 
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }

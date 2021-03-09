@@ -297,33 +297,10 @@ namespace PMVOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AppTaskFollows",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Followed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTaskFollows", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AppTasks",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Title = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Content = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
@@ -334,12 +311,12 @@ namespace PMVOnline.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     Assignee = table.Column<Guid>(type: "char(36)", nullable: false),
                     ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
                     LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
                     DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -770,8 +747,8 @@ namespace PMVOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    ReferenceTaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    ReferenceTaskId = table.Column<long>(type: "bigint", nullable: false),
                     ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -798,8 +775,7 @@ namespace PMVOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
                     ActorId = table.Column<Guid>(type: "char(36)", nullable: true),
                     Action = table.Column<int>(type: "int", nullable: false),
                     Note = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
@@ -829,7 +805,7 @@ namespace PMVOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
                     Comment = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false),
                     ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
@@ -858,7 +834,7 @@ namespace PMVOnline.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
                     FileId = table.Column<Guid>(type: "char(36)", nullable: false),
                     ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
@@ -881,6 +857,35 @@ namespace PMVOnline.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AppTaskFiles_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTaskFollows",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Followed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTaskFollows", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTaskFollows_AppTasks_TaskId",
                         column: x => x.TaskId,
                         principalTable: "AppTasks",
                         principalColumn: "Id",
@@ -1445,6 +1450,11 @@ namespace PMVOnline.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_AppTaskFiles_TaskId",
                 table: "AppTaskFiles",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTaskFollows_TaskId",
+                table: "AppTaskFollows",
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(

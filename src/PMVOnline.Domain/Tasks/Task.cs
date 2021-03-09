@@ -8,7 +8,7 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace PMVOnline.Tasks
 {
-    public class Task : FullAuditedAggregateRoot<ulong>
+    public class Task : FullAuditedAggregateRoot<long>
     {
         public string Title { get; set; }
         public string Content { get; set; }
