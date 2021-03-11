@@ -85,9 +85,9 @@ namespace PMVOnline.Tasks
 
         public async Task<bool> FollowTask(FollowTaskRequest request)
         {
-            var task = await taskFollowRepostiory.FirstOrDefaultAsync(d => d.TaskId == request.Id && d.UserId == CurrentUser.Id.Value);
+            var task = (await taskFollowRepostiory.WithDetailsAsync(d => d.Task)).FirstOrDefault(d => d.TaskId == request.Id && d.UserId == CurrentUser.Id.Value);
             if (task == null)
-            {
+            { 
                 await taskFollowRepostiory.InsertAsync(new TaskFollow { TaskId = request.Id, UserId = CurrentUser.Id.Value, Followed = true });
             }
             else
@@ -95,6 +95,9 @@ namespace PMVOnline.Tasks
                 task.Followed = request.Follow;
                 await taskFollowRepostiory.UpdateAsync(task);
             }
+
+            task.Task.LastAction = request.Follow ? ActionType.Follow : ActionType.Unfollow;
+            await taskRepository.UpdateAsync(task.Task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Follow ? ActionType.Follow : ActionType.Unfollow });
             return true;
         }
@@ -205,6 +208,7 @@ namespace PMVOnline.Tasks
             }
 
             task.Status = request.Approved ? Status.Approved : Status.Rejected;
+            task.LastAction = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask;
 
             var updated = await taskRepository.UpdateAsync(task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask, Note = request.Note });
@@ -220,6 +224,7 @@ namespace PMVOnline.Tasks
             }
 
             task.Status = Status.Pending;
+            task.LastAction = ActionType.Reopen;
             var updated = await taskRepository.UpdateAsync(task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen });
             return true;
@@ -227,10 +232,14 @@ namespace PMVOnline.Tasks
 
         public async Task<bool> SendComment(CommentRequestDto request)
         {
+            var task = await taskRepository.GetAsync(request.TaskId);
+
             var result = await taskCommentRepository.InsertAsync(ObjectMapper.Map<CommentRequestDto, TaskComment>(request));
             if (result != null)
             {
+                task.LastAction = ActionType.Comment;
                 await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.TaskId, Action = ActionType.Comment });
+                await taskRepository.UpdateAsync(task);
             }
             return true;
         }
