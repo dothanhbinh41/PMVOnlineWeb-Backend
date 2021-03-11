@@ -274,6 +274,34 @@ namespace PMVOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppAppUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TenantId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    UserName = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: false),
+                    Name = table.Column<string>(type: "varchar(64) CHARACTER SET utf8mb4", maxLength: 64, nullable: true),
+                    Surname = table.Column<string>(type: "varchar(64) CHARACTER SET utf8mb4", maxLength: 64, nullable: true),
+                    Email = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    PhoneNumber = table.Column<string>(type: "varchar(16) CHARACTER SET utf8mb4", maxLength: 16, nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppAppUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AppFiles",
                 columns: table => new
                 {
@@ -294,35 +322,6 @@ namespace PMVOnline.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppFiles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AppTasks",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Title = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    Content = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    DueDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CompletedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Priority = table.Column<int>(type: "int", nullable: false),
-                    Target = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    Assignee = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTasks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -743,12 +742,20 @@ namespace PMVOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AppReferenceTasks",
+                name: "AppTasks",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<long>(type: "bigint", nullable: false),
-                    ReferenceTaskId = table.Column<long>(type: "bigint", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Title = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Content = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CompletedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    Target = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    LastAction = table.Column<int>(type: "int", nullable: false),
+                    AssigneeId = table.Column<Guid>(type: "char(36)", nullable: false),
                     ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -761,135 +768,25 @@ namespace PMVOnline.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AppReferenceTasks", x => x.Id);
+                    table.PrimaryKey("PK_AppTasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AppReferenceTasks_AppTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "AppTasks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AppTaskActions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<long>(type: "bigint", nullable: false),
-                    ActorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    Action = table.Column<int>(type: "int", nullable: false),
-                    Note = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTaskActions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AppTaskActions_AppTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "AppTasks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AppTaskComments",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<long>(type: "bigint", nullable: false),
-                    Comment = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTaskComments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AppTaskComments_AppTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "AppTasks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AppTaskFiles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<long>(type: "bigint", nullable: false),
-                    FileId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTaskFiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AppTaskFiles_AppFiles_FileId",
-                        column: x => x.FileId,
-                        principalTable: "AppFiles",
+                        name: "FK_AppTasks_AppAppUsers_AssigneeId",
+                        column: x => x.AssigneeId,
+                        principalTable: "AppAppUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AppTaskFiles_AppTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "AppTasks",
+                        name: "FK_AppTasks_AppAppUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AppAppUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AppTaskFollows",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TaskId = table.Column<long>(type: "bigint", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Followed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTaskFollows", x => x.Id);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_AppTaskFollows_AppTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "AppTasks",
+                        name: "FK_AppTasks_AppAppUsers_LastModifierId",
+                        column: x => x.LastModifierId,
+                        principalTable: "AppAppUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1233,6 +1130,173 @@ namespace PMVOnline.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppReferenceTasks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    ReferenceTaskId = table.Column<long>(type: "bigint", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppReferenceTasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppReferenceTasks_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTaskActions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    Action = table.Column<int>(type: "int", nullable: false),
+                    Note = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTaskActions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTaskActions_AppAppUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AppAppUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AppTaskActions_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTaskComments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    Comment = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTaskComments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTaskComments_AppAppUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AppAppUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppTaskComments_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTaskFiles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    FileId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTaskFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTaskFiles_AppFiles_FileId",
+                        column: x => x.FileId,
+                        principalTable: "AppFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppTaskFiles_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTaskFollows",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TaskId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Followed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "varchar(40) CHARACTER SET utf8mb4", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTaskFollows", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTaskFollows_AppAppUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AppAppUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppTaskFollows_AppTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "AppTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AppTaskCommentFiles",
                 columns: table => new
                 {
@@ -1423,6 +1487,11 @@ namespace PMVOnline.Migrations
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppTaskActions_CreatorId",
+                table: "AppTaskActions",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppTaskActions_TaskId",
                 table: "AppTaskActions",
                 column: "TaskId");
@@ -1443,6 +1512,11 @@ namespace PMVOnline.Migrations
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppTaskComments_UserId",
+                table: "AppTaskComments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppTaskFiles_FileId",
                 table: "AppTaskFiles",
                 column: "FileId");
@@ -1456,6 +1530,26 @@ namespace PMVOnline.Migrations
                 name: "IX_AppTaskFollows_TaskId",
                 table: "AppTaskFollows",
                 column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTaskFollows_UserId",
+                table: "AppTaskFollows",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTasks_AssigneeId",
+                table: "AppTasks",
+                column: "AssigneeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTasks_CreatorId",
+                table: "AppTasks",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTasks_LastModifierId",
+                table: "AppTasks",
+                column: "LastModifierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdentityServerClients_ClientId",
@@ -1657,6 +1751,9 @@ namespace PMVOnline.Migrations
 
             migrationBuilder.DropTable(
                 name: "AppTasks");
+
+            migrationBuilder.DropTable(
+                name: "AppAppUsers");
         }
     }
 }

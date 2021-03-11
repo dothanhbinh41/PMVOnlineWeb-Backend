@@ -19,7 +19,9 @@ namespace PMVOnline.Tasks
     
 
         [ForeignKey(nameof(TaskId))]
-        public virtual Task Task { get; set; } 
-        //public virtual IdentityUser User { get; set; }
+        public virtual Task Task { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public AppUser User { get; set; }
     }
 }

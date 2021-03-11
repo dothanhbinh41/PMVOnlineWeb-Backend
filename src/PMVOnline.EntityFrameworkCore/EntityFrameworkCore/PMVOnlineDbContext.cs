@@ -6,7 +6,7 @@ using PMVOnline.Users;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Modeling;
-using Volo.Abp.Identity; 
+using Volo.Abp.Identity;
 using Volo.Abp.Users.EntityFrameworkCore;
 
 namespace PMVOnline.EntityFrameworkCore
@@ -23,14 +23,14 @@ namespace PMVOnline.EntityFrameworkCore
     [ConnectionStringName("Default")]
     public class PMVOnlineDbContext : AbpDbContext<PMVOnlineDbContext>
     {
-        //public DbSet<AppUser> Users { get; set; }
+        public DbSet<AppUser> Users { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Task> Tasks { get; set; }
         public DbSet<TaskAction> TaskActions { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
         public DbSet<TaskFollow> TaskFollows { get; set; }
         public DbSet<ReferenceTask> ReferenceTasks { get; set; }
-        public DbSet<TaskFile> TaskFiles { get; set; } 
+        public DbSet<TaskFile> TaskFiles { get; set; }
         public DbSet<TaskCommentFile> TaskCommentFiles { get; set; }
 
         /* Add DbSet properties for your Aggregate Roots / Entities here.
@@ -46,15 +46,14 @@ namespace PMVOnline.EntityFrameworkCore
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            
             //builder.Entity<AppUser>(b =>
             //{
-            //    b.ToTable(AbpIdentityDbProperties.DbTablePrefix + "Users"); //Sharing the same table "AbpUsers" with the IdentityUser  
-            //    b.ConfigureAbpUser(); 
-            //    /* Configure mappings for your additional properties
-            //     * Also see the PMVOnlineEfCoreEntityExtensionMappings class
-            //     */
+            //    b.ToTable(PMVOnlineConsts.DbTablePrefix + "AppUsers");
+            //    b.ConfigureByConvention();
+            //    b.ConfigureAuditedAggregateRoot();
+            //    b.ConfigureExtraProperties();
             //});
-             
             /* Configure the shared tables (with included modules) here */
 
             /* Configure your own tables/entities inside the ConfigurePMVOnline method */

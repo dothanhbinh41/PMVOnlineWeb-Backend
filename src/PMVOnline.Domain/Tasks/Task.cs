@@ -1,10 +1,12 @@
-﻿using System;
+﻿using PMVOnline.Users;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.Identity;
 
 namespace PMVOnline.Tasks
 {
@@ -17,14 +19,24 @@ namespace PMVOnline.Tasks
         public Priority Priority { get; set; }
         public Target Target { get; set; }
         public Status Status { get; set; }
-        public Guid Assignee { get; set; }
+        public ActionType LastAction { get; set; }
+        public Guid AssigneeId { get; set; }
 
         public virtual ICollection<TaskFile> TaskFiles { get; set; }
         public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; }
         public virtual ICollection<TaskAction> TaskHistory { get; set; }
-         
+
         [NotMapped]
         public virtual TaskAction LastHistory => TaskHistory.LastOrDefault();
-        public virtual ICollection<TaskFollow> TaskFollows { get; set; } 
+
+        [ForeignKey(nameof(AssigneeId))]
+        public virtual AppUser Assignee { get; set; }
+
+        [ForeignKey(nameof(CreatorId))]
+        public virtual AppUser Creator { get; set; }
+         
+        [ForeignKey(nameof(LastModifierId))]
+        public virtual AppUser LastModifier { get; set; }
+        public virtual ICollection<TaskFollow> TaskFollows { get; set; }
     }
 }

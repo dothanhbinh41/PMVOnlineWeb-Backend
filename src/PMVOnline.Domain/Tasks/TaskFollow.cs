@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PMVOnline.Users;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -18,5 +19,8 @@ namespace PMVOnline.Tasks
 
         [ForeignKey(nameof(TaskId))]
         public virtual Task Task { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public AppUser User { get; set; }
     }
 }

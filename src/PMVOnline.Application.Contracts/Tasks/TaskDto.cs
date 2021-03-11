@@ -15,7 +15,7 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public Guid[] Files { get; set; }
         public long[] ReferenceTasks { get; set; }
-        public Guid Assignee { get; set; }
+        public Guid AssigneeId { get; set; }
     }
 
     public class TaskHistoryRequestDto : PagedResultRequestDto
@@ -56,11 +56,11 @@ namespace PMVOnline.Tasks
     public class SimpleUserDto : EntityDto<Guid>
     {
         public string Name { get; set; }
-        public string Surname { get; set; } 
+        public string Surname { get; set; }
     }
 
     public class UserDto : SimpleUserDto
-    { 
+    {
         public ICollection<RoleDto> Roles { set; get; }
     }
 
@@ -87,26 +87,22 @@ namespace PMVOnline.Tasks
 
     public class TaskActionDto
     {
-    }
-
-    public class LastTaskHistoryDto
-    {
-        public Guid ActorId { get; set; }
         public SimpleUserDto Actor { get; set; }
         public ActionType Action { get; set; }
-
     }
 
     public class MyTaskDto
     {
-        public long TaskId { get; set; }
-        public string Title { get; set; } 
+        public long Id { get; set; }
+        public string Title { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
         public Target Target { get; set; }
         public Status Status { get; set; }
-        public Guid Assignee { get; set; }
-        public LastTaskHistoryDto LastAction { get; set; }
-    } 
+        public SimpleUserDto Assignee { get; set; }
+        public SimpleUserDto Creator { get; set; }
+        public SimpleUserDto LastModifier { get; set; }
+        public ActionType LastAction { get; set; }
+    }
 }

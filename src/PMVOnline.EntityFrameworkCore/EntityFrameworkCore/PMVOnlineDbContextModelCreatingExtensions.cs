@@ -78,7 +78,21 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureByConvention();
                 b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
-            }); 
+            });
+
+            builder.Entity<AppUser>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "AppUsers"); //Sharing the same table "AbpUsers" with the IdentityUser  
+                b.ConfigureByConvention();
+                b.ConfigureExtraProperties();
+                b.ConfigureAbpUser();
+                b.ConfigureAuditedAggregateRoot();
+                /* Configure mappings for your additional properties
+                 * Also see the PMVOnlineEfCoreEntityExtensionMappings class
+                 */
+            });
+
+
         }
     }
 }

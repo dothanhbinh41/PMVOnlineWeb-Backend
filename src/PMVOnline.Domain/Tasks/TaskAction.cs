@@ -13,16 +13,14 @@ namespace PMVOnline.Tasks
 {
     public class TaskAction : FullAuditedAggregateRoot<Guid>
     {
-        public long TaskId { get; set; }
-        public Guid? ActorId { get; set; }
+        public long TaskId { get; set; } 
         public ActionType Action { get; set; }
-        public string Note { get; set; }
-
-        //public virtual IdentityUser Actor { get; set; }
+        public string Note { get; set; } 
 
         [ForeignKey(nameof(TaskId))]
         public virtual Task Task { get; set; }
-        [NotMapped]
-        public virtual IdentityUser Actor { get; set; }
+
+        [ForeignKey(nameof(CreatorId))]
+        public virtual AppUser Actor { get; set; }
     } 
 }
