@@ -25,9 +25,7 @@ namespace PMVOnline
             CreateMap<Task, TaskDto>();
             CreateMap<IdentityUserDto, AppUser>();
             CreateMap<AppUser, SimpleUserDto>();
-            CreateMap<Task, MyTaskDto>()
-                .ForMember(d => d.LastAction, c => c.MapFrom(d => d.LastHistory))
-                .ForMember(d => d.Id, c => c.MapFrom(d => d.Id));
+            CreateMap<Task, MyTaskDto>();
             //.ForMember=>d.)
             //.MapExtraProperties();
         }

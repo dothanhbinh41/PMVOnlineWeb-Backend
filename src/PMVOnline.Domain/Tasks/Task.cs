@@ -25,9 +25,7 @@ namespace PMVOnline.Tasks
         public virtual ICollection<TaskFile> TaskFiles { get; set; }
         public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; }
         public virtual ICollection<TaskAction> TaskHistory { get; set; }
-
-        [NotMapped]
-        public virtual TaskAction LastHistory => TaskHistory.LastOrDefault();
+         
 
         [ForeignKey(nameof(AssigneeId))]
         public virtual AppUser Assignee { get; set; }

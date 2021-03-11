@@ -12,7 +12,7 @@ using Volo.Abp.Identity;
 namespace PMVOnline.Users
 {
     [Dependency(ReplaceServices = true)]
-    [ExposeServices(typeof(IProfileAppService), typeof(ProfileAppService), typeof(UserAppService))]
+    [ExposeServices(typeof(IIdentityUserAppService), typeof(IdentityUserAppService), typeof(UserAppService))]
     public class UserAppService : IdentityUserAppService
     {
         readonly IRepository<AppUser, Guid> appUsersRepository;

@@ -65,7 +65,7 @@ namespace PMVOnline.Tasks
 
         public async Task<bool> FinishTask(FinishTaskRequest request)
         {
-            var task = await taskRepository.GetAsync(d => d.Id == request.Id);
+            var task = await taskRepository.GetAsync(request.Id);
             if (task.Status != Status.Approved)
             {
                 return false;
@@ -85,19 +85,19 @@ namespace PMVOnline.Tasks
 
         public async Task<bool> FollowTask(FollowTaskRequest request)
         {
-            var task = (await taskFollowRepostiory.WithDetailsAsync(d => d.Task)).FirstOrDefault(d => d.TaskId == request.Id && d.UserId == CurrentUser.Id.Value);
-            if (task == null)
-            { 
+            var taskFollow = await taskFollowRepostiory.FirstOrDefaultAsync(d => d.TaskId == request.Id && d.UserId == CurrentUser.Id.Value);
+            if (taskFollow == null)
+            {
                 await taskFollowRepostiory.InsertAsync(new TaskFollow { TaskId = request.Id, UserId = CurrentUser.Id.Value, Followed = true });
             }
             else
             {
-                task.Followed = request.Follow;
-                await taskFollowRepostiory.UpdateAsync(task);
+                taskFollow.Followed = request.Follow;
+                await taskFollowRepostiory.UpdateAsync(taskFollow);
             }
-
-            task.Task.LastAction = request.Follow ? ActionType.Follow : ActionType.Unfollow;
-            await taskRepository.UpdateAsync(task.Task);
+            var task = await taskRepository.GetAsync(request.Id);
+            task.LastAction = request.Follow ? ActionType.Follow : ActionType.Unfollow;
+            await taskRepository.UpdateAsync(task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Follow ? ActionType.Follow : ActionType.Unfollow });
             return true;
         }
@@ -256,17 +256,17 @@ namespace PMVOnline.Tasks
             /// admin : pending
             /// 
 
-            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.CreatorId == uid && d.LastHistory != null).TakeLast(20).ToArray();
-            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.AssigneeId == uid && d.LastHistory != null).OrderByDescending(c => c.LastHistory.CreationTime).Take(20).ToArray();
-            var followTasks = (await taskRepository.WithDetailsAsync(d => d.TaskHistory, c => c.TaskFollows)).Where(d => d.TaskFollows.Any(c => c.UserId == uid) && d.LastHistory != null).TakeLast(20).ToArray();
+            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.CreatorId == uid).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
+            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.AssigneeId == uid).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
+            var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
             if (isAdmin)
             {
-                var pending = (await taskRepository.WithDetailsAsync(d => d.TaskHistory)).Where(d => d.Status == Status.Pending).TakeLast(20).ToArray();
-                var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
+                var pending = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.Status == Status.Pending).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
+                var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
                 return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
             }
 
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.LastHistory.CreationTime).Take(20).ToArray();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
 
             return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
         }
@@ -277,7 +277,7 @@ namespace PMVOnline.Tasks
             var createdTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.CreatorId == uid).ToArray().ToArray();
             var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.AssigneeId == uid).ToArray();
             var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).ToArray();
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Where(d => d.LastHistory != null).OrderByDescending(d => d.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
         }
     }

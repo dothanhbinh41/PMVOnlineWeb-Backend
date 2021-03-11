@@ -78,7 +78,7 @@ namespace PMVOnline.Tasks
         public Priority Priority { get; set; }
         public Target Target { get; set; }
         public Status Status { get; set; }
-        public Guid Assignee { get; set; }
+        public Guid AssigneeId { get; set; }
     }
 
     public class TaskCommentDto
@@ -99,7 +99,7 @@ namespace PMVOnline.Tasks
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
         public Target Target { get; set; }
-        public Status Status { get; set; }
+        public Status Status { get; set; } 
         public SimpleUserDto Assignee { get; set; }
         public SimpleUserDto Creator { get; set; }
         public SimpleUserDto LastModifier { get; set; }
