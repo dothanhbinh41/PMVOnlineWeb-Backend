@@ -10,4 +10,9 @@ namespace PMVOnline.Files
         public string Name { get; set; }
         public string Path { get; set; }
     }
+
+    public class TaskFileDto : EntityDto<Guid>
+    { 
+        public Guid FileId { get; set; }
+    }
 }

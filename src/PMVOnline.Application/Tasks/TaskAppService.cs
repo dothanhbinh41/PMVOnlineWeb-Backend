@@ -187,11 +187,11 @@ namespace PMVOnline.Tasks
             return ObjectMapper.Map<IdentityUser, UserDto>(user);
         }
 
-        public async Task<TaskActionDto[]> GetTaskHistory(TaskHistoryRequestDto request)
+        public async Task<TaskActionDto[]> GetTaskHistory(long id,TaskHistoryRequestDto request)
         {
             var tasks = (await taskActionRepository
                 .WithDetailsAsync(d => d.Actor))
-                .Where(d => d.TaskId == request.TaskId)
+                .Where(d => d.TaskId == id)
                 .Skip(request.SkipCount)
                 .Take(request.MaxResultCount)
                 .ToList();
@@ -201,7 +201,7 @@ namespace PMVOnline.Tasks
 
         public async Task<bool> ProcessTask(ProcessTaskRequest request)
         {
-            var task = await taskRepository.GetAsync(d => d.Id == request.Id);
+            var task = await taskRepository.GetAsync(request.Id);
             if (task.Status != Status.Pending)
             {
                 return false;
@@ -279,6 +279,23 @@ namespace PMVOnline.Tasks
             var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).ToArray();
             var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
+        }
+
+        public async Task<FullTaskDto> GetTask(long id)
+        {
+            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.ReferenceTasks)).FirstOrDefault(d => d.Id == id);
+            if (task == null)
+            {
+                return null;
+            }
+
+            return ObjectMapper.Map<Task, FullTaskDto>(task); 
+        }
+
+        public async Task<TaskCommentDto[]> GetTaskComments(long id)
+        {
+            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds)).Where(d => d.TaskId == id).ToArray(); 
+            return ObjectMapper.Map<TaskComment[], TaskCommentDto[]>(comments); 
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PMVOnline.Files;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Volo.Abp.Application.Dtos;
@@ -19,10 +20,9 @@ namespace PMVOnline.Tasks
     }
 
     public class TaskHistoryRequestDto : PagedResultRequestDto
-    {
-        public long TaskId { get; set; }
+    { 
     }
-
+     
     public class CommentRequestDto
     {
         public long TaskId { get; set; }
@@ -81,9 +81,15 @@ namespace PMVOnline.Tasks
         public Guid AssigneeId { get; set; }
     }
 
-    public class TaskCommentDto
+    public class TaskCommentDto : EntityDto<Guid>
     {
+        public long TaskId { get; set; }
+        public string Comment { get; set; }
+        public Guid UserId { get; set; }
+        public TaskFileDto[] FileIds { get; set; } 
+        public SimpleUserDto User { get; set; }
     }
+     
 
     public class TaskActionDto
     {
@@ -99,10 +105,34 @@ namespace PMVOnline.Tasks
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
         public Target Target { get; set; }
-        public Status Status { get; set; } 
+        public Status Status { get; set; }
         public SimpleUserDto Assignee { get; set; }
         public SimpleUserDto Creator { get; set; }
         public SimpleUserDto LastModifier { get; set; }
         public ActionType LastAction { get; set; }
+    }
+
+    public class ReferenceTaskDto : EntityDto<Guid>
+    {
+        public long TaskId { get; set; }
+        public long ReferenceTaskId { get; set; } 
+    }
+
+    public class FullTaskDto : EntityDto<long>
+    {
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public DateTime DueDate { get; set; }
+        public DateTime? CompletedDate { get; set; }
+        public Priority Priority { get; set; }
+        public Target Target { get; set; }
+        public Status Status { get; set; }
+        public ActionType LastAction { get; set; }
+        public Guid AssigneeId { get; set; }
+
+        public virtual ICollection<FileDto> TaskFiles { get; set; }
+        public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; }
+        //public virtual ICollection<TaskActionDto> TaskHistory { get; set; } 
+        public virtual SimpleUserDto Assignee { get; set; }  
     }
 }
