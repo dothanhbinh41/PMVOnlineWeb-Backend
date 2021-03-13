@@ -15,13 +15,13 @@ namespace PMVOnline.Tasks
         public long TaskId { get; set; }
         public string Comment { get; set; }
         public Guid UserId { get; set; }
-        public virtual ICollection<TaskCommentFile> FileIds { get; set; }
-    
 
         [ForeignKey(nameof(TaskId))]
         public virtual Task Task { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public AppUser User { get; set; }
+         
+        public virtual ICollection<TaskCommentFile> FileIds { get; set; }
     }
 }

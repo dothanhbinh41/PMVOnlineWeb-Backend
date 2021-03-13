@@ -8,12 +8,12 @@ namespace PMVOnline.Tasks
     public class TaskCommentFile : FullAuditedAggregateRoot<Guid>
     {
         public Guid CommentId { get; set; } 
-        public Guid FileId { get; set; }
+        public Guid FileId { get; set; } 
+        public string FileName { get; set; } 
+        public string FilePath { get; set; }
 
-        [ForeignKey(nameof(FileId))]
-        public virtual File File { get; set; }
 
         [ForeignKey(nameof(CommentId))]
-        public virtual TaskComment Comment { get; set; }
+        public TaskComment Comment { get; set; }
     }
 }

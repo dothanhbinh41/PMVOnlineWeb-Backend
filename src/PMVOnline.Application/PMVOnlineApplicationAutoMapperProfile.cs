@@ -25,12 +25,16 @@ namespace PMVOnline
             CreateMap<Task, TaskDto>();
             CreateMap<IdentityUserDto, AppUser>();
             CreateMap<AppUser, SimpleUserDto>();
-            CreateMap<Task, MyTaskDto>(); 
+            CreateMap<Task, MyTaskDto>();
             CreateMap<TaskFile, TaskFileDto>();
             CreateMap<ReferenceTask, ReferenceTaskDto>();
             CreateMap<Task, FullTaskDto>();
             CreateMap<TaskComment, TaskCommentDto>();
             CreateMap<TaskCommentFile, TaskFileDto>();
+            CreateMap<TaskFile, FileDto>()
+                .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
+                .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))
+                .ForMember(d => d.Path, c => c.MapFrom(d => d.File.Path));
             //.ForMember=>d.)
             //.MapExtraProperties();
         }

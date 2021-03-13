@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using PMVOnline.Departments;
+using PMVOnline.Files;
 using PMVOnline.Users;
 using System;
 using System.Collections.Generic;
@@ -26,17 +27,21 @@ namespace PMVOnline.Tasks
         readonly IRepository<TaskAction, Guid> taskActionRepository;
         readonly IRepository<TaskComment, Guid> taskCommentRepository;
         readonly IRepository<TaskFollow, Guid> taskFollowRepostiory;
+        readonly IRepository<TaskFile, Guid> taskFileRepostiory;
         readonly IRepository<IdentityUser, Guid> appUserRepository;
         readonly IRepository<IdentityRole, Guid> roleRepository;
-        private readonly IdentityUserManager identityUserManager;
+        readonly IRepository<File, Guid> fileRepository;
+        readonly IdentityUserManager identityUserManager;
 
         public TaskAppService(
             IRepository<Task, long> taskRepository,
             IRepository<TaskAction, Guid> taskActionRepository,
             IRepository<TaskComment, Guid> taskCommentRepository,
             IRepository<TaskFollow, Guid> taskFollowRepostiory,
+            IRepository<TaskFile, Guid> taskFileRepostiory,
             IRepository<IdentityUser, Guid> appUserRepository,
             IRepository<IdentityRole, Guid> roleRepository,
+            IRepository<File, Guid> fileRepository,
             IdentityUserManager identityUserManager
             )
         {
@@ -44,8 +49,10 @@ namespace PMVOnline.Tasks
             this.taskActionRepository = taskActionRepository;
             this.taskCommentRepository = taskCommentRepository;
             this.taskFollowRepostiory = taskFollowRepostiory;
+            this.taskFileRepostiory = taskFileRepostiory;
             this.appUserRepository = appUserRepository;
             this.roleRepository = roleRepository;
+            this.fileRepository = fileRepository;
             this.identityUserManager = identityUserManager;
         }
 
@@ -187,7 +194,7 @@ namespace PMVOnline.Tasks
             return ObjectMapper.Map<IdentityUser, UserDto>(user);
         }
 
-        public async Task<TaskActionDto[]> GetTaskHistory(long id,TaskHistoryRequestDto request)
+        public async Task<TaskActionDto[]> GetTaskHistory(long id, TaskHistoryRequestDto request)
         {
             var tasks = (await taskActionRepository
                 .WithDetailsAsync(d => d.Actor))
@@ -234,7 +241,17 @@ namespace PMVOnline.Tasks
         {
             var task = await taskRepository.GetAsync(request.TaskId);
 
-            var result = await taskCommentRepository.InsertAsync(ObjectMapper.Map<CommentRequestDto, TaskComment>(request));
+            var comment = ObjectMapper.Map<CommentRequestDto, TaskComment>(request);
+            var commentsFiles = fileRepository.Where(d => request.Files.Contains(d.Id)).ToArray().Select(d => new TaskCommentFile
+            {
+                CommentId = comment.Id,
+                FileId = d.Id,
+                FileName = d.Name,
+                FilePath = d.Path
+
+            });
+            comment.FileIds = new List<TaskCommentFile>(commentsFiles);
+            var result = await taskCommentRepository.InsertAsync(comment);
             if (result != null)
             {
                 task.LastAction = ActionType.Comment;
@@ -289,13 +306,19 @@ namespace PMVOnline.Tasks
                 return null;
             }
 
-            return ObjectMapper.Map<Task, FullTaskDto>(task); 
+            return ObjectMapper.Map<Task, FullTaskDto>(task);
         }
 
         public async Task<TaskCommentDto[]> GetTaskComments(long id)
         {
-            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds)).Where(d => d.TaskId == id).ToArray(); 
-            return ObjectMapper.Map<TaskComment[], TaskCommentDto[]>(comments); 
+            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds)).Where(d => d.TaskId == id).ToArray();
+            return ObjectMapper.Map<TaskComment[], TaskCommentDto[]>(comments);
+        }
+
+        public async Task<FileDto[]> GetTaskFiles(long id)
+        {
+            var files = (await taskFileRepostiory.WithDetailsAsync(d => d.File)).Where(d => d.TaskId == id).ToArray();
+            return ObjectMapper.Map<TaskFile[], FileDto[]>(files);
         }
     }
 }

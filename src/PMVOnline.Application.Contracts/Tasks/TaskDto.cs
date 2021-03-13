@@ -86,8 +86,9 @@ namespace PMVOnline.Tasks
         public long TaskId { get; set; }
         public string Comment { get; set; }
         public Guid UserId { get; set; }
-        public TaskFileDto[] FileIds { get; set; } 
+        public CommentFileDto[] FileIds { get; set; } 
         public SimpleUserDto User { get; set; }
+        public DateTime CreationTime { get; set; }
     }
      
 
@@ -95,6 +96,7 @@ namespace PMVOnline.Tasks
     {
         public SimpleUserDto Actor { get; set; }
         public ActionType Action { get; set; }
+        public DateTime CreationTime { get; set; }
     }
 
     public class MyTaskDto
@@ -128,11 +130,8 @@ namespace PMVOnline.Tasks
         public Target Target { get; set; }
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
-        public Guid AssigneeId { get; set; }
-
-        public virtual ICollection<FileDto> TaskFiles { get; set; }
-        public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; }
-        //public virtual ICollection<TaskActionDto> TaskHistory { get; set; } 
+        public Guid AssigneeId { get; set; } 
+        public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; } 
         public virtual SimpleUserDto Assignee { get; set; }  
     }
 }

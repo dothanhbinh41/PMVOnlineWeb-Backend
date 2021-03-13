@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PMVOnline.Files;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,5 +22,6 @@ namespace PMVOnline.Tasks
         Task<MyTaskDto[]> GetMyTasks(PagedResultRequestDto request);
         Task<FullTaskDto> GetTask(long id);
         Task<TaskCommentDto[]> GetTaskComments(long id); 
+        Task<FileDto[]> GetTaskFiles(long id); 
     }
 }

@@ -21,6 +21,6 @@ namespace PMVOnline.Tasks
         public virtual Task Task { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public AppUser User { get; set; }
+        public AppUser User { get; set; } 
     }
 }
