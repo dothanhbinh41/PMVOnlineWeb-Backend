@@ -283,7 +283,7 @@ namespace PMVOnline.Tasks
                 return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
             }
 
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Distinct().Take(20).ToArray();
 
             return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
         }
@@ -294,7 +294,7 @@ namespace PMVOnline.Tasks
             var createdTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.CreatorId == uid).ToArray().ToArray();
             var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.AssigneeId == uid).ToArray();
             var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).ToArray();
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.CreationTime).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
+            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.CreationTime).Distinct().Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
         }
 
