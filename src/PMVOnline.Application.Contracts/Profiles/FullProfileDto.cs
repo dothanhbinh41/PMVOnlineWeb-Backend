@@ -8,5 +8,7 @@ namespace PMVOnline.Profiles
     public class FullProfileDto : ProfileDto
     {
         public Guid Id { get; set; }
+
+        public ICollection<IdentityRoleDto> Roles { set; get; }
     }
 }

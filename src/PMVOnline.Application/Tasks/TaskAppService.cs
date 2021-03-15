@@ -28,6 +28,7 @@ namespace PMVOnline.Tasks
         readonly IRepository<TaskComment, Guid> taskCommentRepository;
         readonly IRepository<TaskFollow, Guid> taskFollowRepostiory;
         readonly IRepository<TaskFile, Guid> taskFileRepostiory;
+        private readonly IRepository<ReferenceTask, Guid> referenceTaskRepostiory;
         readonly IRepository<IdentityUser, Guid> appUserRepository;
         readonly IRepository<IdentityRole, Guid> roleRepository;
         readonly IRepository<File, Guid> fileRepository;
@@ -39,6 +40,7 @@ namespace PMVOnline.Tasks
             IRepository<TaskComment, Guid> taskCommentRepository,
             IRepository<TaskFollow, Guid> taskFollowRepostiory,
             IRepository<TaskFile, Guid> taskFileRepostiory,
+            IRepository<ReferenceTask, Guid> referenceTaskRepostiory,
             IRepository<IdentityUser, Guid> appUserRepository,
             IRepository<IdentityRole, Guid> roleRepository,
             IRepository<File, Guid> fileRepository,
@@ -50,6 +52,7 @@ namespace PMVOnline.Tasks
             this.taskCommentRepository = taskCommentRepository;
             this.taskFollowRepostiory = taskFollowRepostiory;
             this.taskFileRepostiory = taskFileRepostiory;
+            this.referenceTaskRepostiory = referenceTaskRepostiory;
             this.appUserRepository = appUserRepository;
             this.roleRepository = roleRepository;
             this.fileRepository = fileRepository;
@@ -62,10 +65,22 @@ namespace PMVOnline.Tasks
             var assignee = await appUserRepository.GetAsync(request.AssigneeId);
             task.LastModifierId = CurrentUser.GetId();
             var result = await taskRepository.InsertAsync(task, true);
-            if (result != null)
+
+            if (result == null)
             {
-                await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
+                throw new Exception();
             }
+
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
+            if (request.Files?.Length > 0)
+            {
+                await taskFileRepostiory.InsertManyAsync(request.Files.Select(d => new TaskFile { FileId = d, TaskId = result.Id })); 
+            }
+            if (request.ReferenceTasks?.Length > 0)
+            { 
+                await referenceTaskRepostiory.InsertManyAsync(request.ReferenceTasks.Select(d => new ReferenceTask { ReferenceTaskId = d, TaskId = result.Id }));
+            }
+
 
             return ObjectMapper.Map<Task, TaskDto>(result);
         }
@@ -194,13 +209,12 @@ namespace PMVOnline.Tasks
             return ObjectMapper.Map<IdentityUser, UserDto>(user);
         }
 
-        public async Task<TaskActionDto[]> GetTaskHistory(long id, TaskHistoryRequestDto request)
+        public async Task<TaskActionDto[]> GetTaskHistory(long id)
         {
             var tasks = (await taskActionRepository
                 .WithDetailsAsync(d => d.Actor))
-                .Where(d => d.TaskId == id)
-                .Skip(request.SkipCount)
-                .Take(request.MaxResultCount)
+                .Where(d => d.TaskId == id) 
+                .OrderByDescending(d=>d.CreationTime)
                 .ToList();
             var actions = tasks.Select(d => ObjectMapper.Map<TaskAction, TaskActionDto>(d)).ToArray();
             return actions;
