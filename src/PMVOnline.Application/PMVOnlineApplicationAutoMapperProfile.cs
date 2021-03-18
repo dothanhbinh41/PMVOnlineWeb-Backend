@@ -17,6 +17,7 @@ namespace PMVOnline
             CreateMap<IdentityUser, SimpleUserDto>();
             CreateMap<IdentityUser, UserDto>();
             CreateMap<IdentityUser, FullProfileDto>()
+                .ForMember(d=>d.Roles,d=>d.Ignore())
                 .ForMember(dest => dest.HasPassword, op => op.MapFrom(src => src.PasswordHash != null))
                 .MapExtraProperties();
             CreateMap<IdentityUserRole, RoleDto>();
@@ -31,6 +32,7 @@ namespace PMVOnline
             CreateMap<Task, FullTaskDto>();
             CreateMap<TaskComment, TaskCommentDto>();
             CreateMap<TaskCommentFile, TaskFileDto>();
+            CreateMap<IdentityRole, IdentityRoleDto>();
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
                 .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))
