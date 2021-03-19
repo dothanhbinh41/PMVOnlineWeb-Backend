@@ -74,10 +74,10 @@ namespace PMVOnline.Tasks
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
             if (request.Files?.Length > 0)
             {
-                await taskFileRepostiory.InsertManyAsync(request.Files.Select(d => new TaskFile { FileId = d, TaskId = result.Id })); 
+                await taskFileRepostiory.InsertManyAsync(request.Files.Select(d => new TaskFile { FileId = d, TaskId = result.Id }));
             }
             if (request.ReferenceTasks?.Length > 0)
-            { 
+            {
                 await referenceTaskRepostiory.InsertManyAsync(request.ReferenceTasks.Select(d => new ReferenceTask { ReferenceTaskId = d, TaskId = result.Id }));
             }
 
@@ -213,8 +213,8 @@ namespace PMVOnline.Tasks
         {
             var tasks = (await taskActionRepository
                 .WithDetailsAsync(d => d.Actor))
-                .Where(d => d.TaskId == id) 
-                .OrderByDescending(d=>d.CreationTime)
+                .Where(d => d.TaskId == id)
+                .OrderByDescending(d => d.CreationTime)
                 .ToList();
             var actions = tasks.Select(d => ObjectMapper.Map<TaskAction, TaskActionDto>(d)).ToArray();
             return actions;
@@ -333,6 +333,12 @@ namespace PMVOnline.Tasks
         {
             var files = (await taskFileRepostiory.WithDetailsAsync(d => d.File)).Where(d => d.TaskId == id).ToArray();
             return ObjectMapper.Map<TaskFile[], FileDto[]>(files);
+        }
+
+        public async Task<string> GetNote(long id)
+        {
+            var ac = taskActionRepository.OrderBy(d=>d.CreationTime).LastOrDefault(d => d.TaskId == id && (d.Action == ActionType.RejectedTask || d.Action == ActionType.IncompletedTask || d.Action == ActionType.CompletedTask));
+            return ac?.Note;
         }
     }
 }

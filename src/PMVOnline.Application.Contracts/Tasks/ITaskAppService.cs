@@ -11,6 +11,7 @@ namespace PMVOnline.Tasks
     {
         Task<TaskDto> CreateTask(CreateTaskRequestDto request);
         Task<TaskActionDto[]> GetTaskHistory(long id);
+        Task<string> GetNote(long id);
         Task<bool> SendComment(CommentRequestDto request);
         Task<bool> ProcessTask(ProcessTaskRequest request);
         Task<bool> FinishTask(FinishTaskRequest request);
@@ -21,7 +22,7 @@ namespace PMVOnline.Tasks
         Task<MyTaskDto[]> GetMyActions();
         Task<MyTaskDto[]> GetMyTasks(PagedResultRequestDto request);
         Task<FullTaskDto> GetTask(long id);
-        Task<TaskCommentDto[]> GetTaskComments(long id); 
-        Task<FileDto[]> GetTaskFiles(long id); 
+        Task<TaskCommentDto[]> GetTaskComments(long id);
+        Task<FileDto[]> GetTaskFiles(long id);
     }
 }

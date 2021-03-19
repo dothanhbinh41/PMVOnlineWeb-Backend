@@ -97,6 +97,7 @@ namespace PMVOnline.Tasks
         public SimpleUserDto Actor { get; set; }
         public ActionType Action { get; set; }
         public DateTime CreationTime { get; set; }
+        public string Note { get; set; }
     }
 
     public class MyTaskDto
@@ -131,7 +132,13 @@ namespace PMVOnline.Tasks
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; } 
+        public Guid CreatorId { get; set; } 
         public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; } 
         public virtual SimpleUserDto Assignee { get; set; }  
+    }
+
+    public class LastHistoryRequestDto
+    {
+        public ActionType Action { get; set; }
     }
 }
