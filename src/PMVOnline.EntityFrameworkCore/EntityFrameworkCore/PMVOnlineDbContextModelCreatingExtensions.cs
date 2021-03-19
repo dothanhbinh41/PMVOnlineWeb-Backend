@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PMVOnline.Departments;
 using PMVOnline.Files;
+using PMVOnline.Guides;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
 using Volo.Abp;
@@ -78,6 +79,13 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureByConvention();
                 b.ConfigureAuditedAggregateRoot();
                 b.ConfigureExtraProperties();
+            });
+            
+            builder.Entity<Guide>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "Guides");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot(); 
             });
 
             builder.Entity<AppUser>(b =>

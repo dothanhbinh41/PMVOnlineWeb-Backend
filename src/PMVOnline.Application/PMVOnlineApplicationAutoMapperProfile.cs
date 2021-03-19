@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PMVOnline.Files;
+using PMVOnline.Guides;
 using PMVOnline.Profiles;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
@@ -30,6 +31,7 @@ namespace PMVOnline
             CreateMap<TaskFile, TaskFileDto>();
             CreateMap<ReferenceTask, ReferenceTaskDto>();
             CreateMap<Task, FullTaskDto>();
+            CreateMap<Guide, GuideDto>();
             CreateMap<TaskComment, TaskCommentDto>();
             CreateMap<TaskCommentFile, TaskFileDto>();
             CreateMap<IdentityRole, IdentityRoleDto>();
