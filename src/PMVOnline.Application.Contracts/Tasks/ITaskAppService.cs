@@ -12,7 +12,7 @@ namespace PMVOnline.Tasks
         Task<TaskDto> CreateTask(CreateTaskRequestDto request);
         Task<TaskActionDto[]> GetTaskHistory(long id);
         Task<string> GetNote(long id);
-        Task<bool> SendComment(CommentRequestDto request);
+        Task<bool> SendComment(long id, CommentRequestDto request);
         Task<bool> ProcessTask(ProcessTaskRequest request);
         Task<bool> FinishTask(FinishTaskRequest request);
         Task<bool> ReopenTask(ReopenTaskRequest request);

@@ -24,8 +24,7 @@ namespace PMVOnline.Tasks
     }
      
     public class CommentRequestDto
-    {
-        public long TaskId { get; set; }
+    { 
         public string Comment { get; set; }
         public Guid[] Files { get; set; }
     }

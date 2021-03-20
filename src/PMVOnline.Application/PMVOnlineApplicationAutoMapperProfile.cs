@@ -35,6 +35,8 @@ namespace PMVOnline
             CreateMap<TaskComment, TaskCommentDto>();
             CreateMap<TaskCommentFile, TaskFileDto>();
             CreateMap<IdentityRole, IdentityRoleDto>();
+            CreateMap<CommentRequestDto, TaskComment>();
+            CreateMap<TaskCommentFile, CommentFileDto>();
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
                 .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))

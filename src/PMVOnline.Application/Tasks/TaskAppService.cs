@@ -28,7 +28,7 @@ namespace PMVOnline.Tasks
         readonly IRepository<TaskComment, Guid> taskCommentRepository;
         readonly IRepository<TaskFollow, Guid> taskFollowRepostiory;
         readonly IRepository<TaskFile, Guid> taskFileRepostiory;
-        private readonly IRepository<ReferenceTask, Guid> referenceTaskRepostiory;
+        readonly IRepository<ReferenceTask, Guid> referenceTaskRepostiory;
         readonly IRepository<IdentityUser, Guid> appUserRepository;
         readonly IRepository<IdentityRole, Guid> roleRepository;
         readonly IRepository<File, Guid> fileRepository;
@@ -251,25 +251,28 @@ namespace PMVOnline.Tasks
             return true;
         }
 
-        public async Task<bool> SendComment(CommentRequestDto request)
+        public async Task<bool> SendComment(long id, CommentRequestDto request)
         {
-            var task = await taskRepository.GetAsync(request.TaskId);
+            var task = await taskRepository.GetAsync(id);
 
-            var comment = ObjectMapper.Map<CommentRequestDto, TaskComment>(request);
-            var commentsFiles = fileRepository.Where(d => request.Files.Contains(d.Id)).ToArray().Select(d => new TaskCommentFile
+            var comment = new TaskComment { TaskId = id, Comment = request.Comment, UserId = CurrentUser.GetId() };
+            if (request.Files?.Length > 0)
             {
-                CommentId = comment.Id,
-                FileId = d.Id,
-                FileName = d.Name,
-                FilePath = d.Path
+                var commentsFiles = fileRepository.Where(d => request.Files.Contains(d.Id)).ToArray().Select(d => new TaskCommentFile
+                {
+                    FileId = d.Id,
+                    FileName = d.Name,
+                    FilePath = d.Path
 
-            });
-            comment.FileIds = new List<TaskCommentFile>(commentsFiles);
+                });
+                comment.FileIds = new List<TaskCommentFile>(commentsFiles);
+            }
+
             var result = await taskCommentRepository.InsertAsync(comment);
             if (result != null)
             {
                 task.LastAction = ActionType.Comment;
-                await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.TaskId, Action = ActionType.Comment });
+                await taskActionRepository.InsertAsync(new TaskAction { TaskId = id, Action = ActionType.Comment });
                 await taskRepository.UpdateAsync(task);
             }
             return true;
@@ -325,7 +328,7 @@ namespace PMVOnline.Tasks
 
         public async Task<TaskCommentDto[]> GetTaskComments(long id)
         {
-            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds)).Where(d => d.TaskId == id).ToArray();
+            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds, d => d.User)).Where(d => d.TaskId == id).OrderByDescending(d=>d.CreationTime).ToArray();
             return ObjectMapper.Map<TaskComment[], TaskCommentDto[]>(comments);
         }
 
@@ -337,7 +340,7 @@ namespace PMVOnline.Tasks
 
         public async Task<string> GetNote(long id)
         {
-            var ac = taskActionRepository.OrderBy(d=>d.CreationTime).LastOrDefault(d => d.TaskId == id && (d.Action == ActionType.RejectedTask || d.Action == ActionType.IncompletedTask || d.Action == ActionType.CompletedTask));
+            var ac = taskActionRepository.OrderBy(d => d.CreationTime).LastOrDefault(d => d.TaskId == id && (d.Action == ActionType.RejectedTask || d.Action == ActionType.IncompletedTask || d.Action == ActionType.CompletedTask));
             return ac?.Note;
         }
     }
