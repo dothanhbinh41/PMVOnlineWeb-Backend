@@ -32,5 +32,5 @@ jobs:
       with:
         app-name: 'pmvonline'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_fe33c4139599452ca7b9db22b733573d }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_d09ad2a14cc54bef8570e79afc213a6d }}
         package: ${{env.DOTNET_ROOT}}/myapp 
