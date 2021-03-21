@@ -88,6 +88,14 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureAuditedAggregateRoot(); 
             });
 
+            builder.Entity<IdentityUserToken>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "IdentityUserTokens");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot(); 
+            });
+
+
             builder.Entity<AppUser>(b =>
             {
                 b.ToTable(PMVOnlineConsts.DbTablePrefix + "AppUsers"); //Sharing the same table "AbpUsers" with the IdentityUser  

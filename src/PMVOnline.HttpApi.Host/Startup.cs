@@ -10,6 +10,10 @@ namespace PMVOnline
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplication<PMVOnlineHttpApiHostModule>(); 
+            services.AddAntiforgery(options =>
+            {
+                options.SuppressXFrameOptionsHeader = true;
+            }); 
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)

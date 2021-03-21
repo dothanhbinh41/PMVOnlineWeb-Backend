@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using PMVOnline.Departments;
 using PMVOnline.Files;
+using PMVOnline.Notifications;
 using PMVOnline.Users;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace PMVOnline.Tasks
         readonly IRepository<IdentityRole, Guid> roleRepository;
         readonly IRepository<File, Guid> fileRepository;
         readonly IdentityUserManager identityUserManager;
+        readonly INotificationSender notificationSender;
 
         public TaskAppService(
             IRepository<Task, long> taskRepository,
@@ -44,7 +46,8 @@ namespace PMVOnline.Tasks
             IRepository<IdentityUser, Guid> appUserRepository,
             IRepository<IdentityRole, Guid> roleRepository,
             IRepository<File, Guid> fileRepository,
-            IdentityUserManager identityUserManager
+            IdentityUserManager identityUserManager,
+            INotificationSender notificationSender
             )
         {
             this.taskRepository = taskRepository;
@@ -57,6 +60,7 @@ namespace PMVOnline.Tasks
             this.roleRepository = roleRepository;
             this.fileRepository = fileRepository;
             this.identityUserManager = identityUserManager;
+            this.notificationSender = notificationSender;
         }
 
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
@@ -72,6 +76,9 @@ namespace PMVOnline.Tasks
             }
 
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
+            await notificationSender.SendNotifications(request.AssigneeId, "Ban co task moi");
+            await notificationSender.SendNotifications(await GetAdminUserFollowTaskAsync(task.Id), "Co task moi");
+
             if (request.Files?.Length > 0)
             {
                 await taskFileRepostiory.InsertManyAsync(request.Files.Select(d => new TaskFile { FileId = d, TaskId = result.Id }));
@@ -328,7 +335,7 @@ namespace PMVOnline.Tasks
 
         public async Task<TaskCommentDto[]> GetTaskComments(long id)
         {
-            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds, d => d.User)).Where(d => d.TaskId == id).OrderByDescending(d=>d.CreationTime).ToArray();
+            var comments = (await taskCommentRepository.WithDetailsAsync(d => d.FileIds, d => d.User)).Where(d => d.TaskId == id).OrderByDescending(d => d.CreationTime).ToArray();
             return ObjectMapper.Map<TaskComment[], TaskCommentDto[]>(comments);
         }
 
@@ -342,6 +349,18 @@ namespace PMVOnline.Tasks
         {
             var ac = taskActionRepository.OrderBy(d => d.CreationTime).LastOrDefault(d => d.TaskId == id && (d.Action == ActionType.RejectedTask || d.Action == ActionType.IncompletedTask || d.Action == ActionType.CompletedTask));
             return ac?.Note;
+        }
+
+
+        Guid[] GetUserFollowTask(long taskId)
+        {
+            return taskFollowRepostiory.Where(d => d.TaskId == taskId && d.Followed).Select(d => d.UserId).ToArray();
+        }
+
+        async Task<Guid[]> GetAdminUserFollowTaskAsync(long taskId)
+        {
+            var users = await identityUserManager.GetUsersInRoleAsync("admin");
+            return users.Select(d => d.Id).ToArray();
         }
     }
 }

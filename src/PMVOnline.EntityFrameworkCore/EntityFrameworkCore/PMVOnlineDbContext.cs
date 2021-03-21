@@ -25,6 +25,7 @@ namespace PMVOnline.EntityFrameworkCore
     public class PMVOnlineDbContext : AbpDbContext<PMVOnlineDbContext>
     {
         public DbSet<Guide> Guides { get; set; }
+        public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
         public DbSet<AppUser> Users { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Task> Tasks { get; set; }

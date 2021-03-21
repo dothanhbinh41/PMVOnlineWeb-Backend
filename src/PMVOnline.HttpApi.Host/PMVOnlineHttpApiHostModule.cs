@@ -52,7 +52,7 @@ namespace PMVOnline
         {
             var configuration = context.Services.GetConfiguration();
             var hostingEnvironment = context.Services.GetHostingEnvironment();
-
+             
             ConfigureBundles();
             ConfigureUrls(configuration);
             ConfigureConventionalControllers();
@@ -87,7 +87,11 @@ namespace PMVOnline
         {
             Configure<AppUrlOptions>(options =>
             {
-                options.Applications["MVC"].RootUrl = configuration["App:SelfUrl"];
+                options.Applications["MVC"].RootUrl = configuration["App:SelfUrl"]; 
+                options.RedirectAllowedUrls.Add("http://pmvadmin.azurewebsites.net");
+                options.RedirectAllowedUrls.Add("https://pmvadmin.azurewebsites.net");
+                options.RedirectAllowedUrls.Add("http://pmvonline.azurewebsites.net");
+                options.RedirectAllowedUrls.Add("https://pmvonline.azurewebsites.net"); 
                 options.RedirectAllowedUrls.AddRange(configuration["App:RedirectAllowedUrls"].Split(','));
             });
         }
