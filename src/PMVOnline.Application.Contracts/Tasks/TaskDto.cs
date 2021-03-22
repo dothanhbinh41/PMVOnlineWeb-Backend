@@ -20,11 +20,11 @@ namespace PMVOnline.Tasks
     }
 
     public class TaskHistoryRequestDto : PagedResultRequestDto
-    { 
+    {
     }
-     
+
     public class CommentRequestDto
-    { 
+    {
         public string Comment { get; set; }
         public Guid[] Files { get; set; }
     }
@@ -33,6 +33,11 @@ namespace PMVOnline.Tasks
     {
         public bool Approved { get; set; }
         public string Note { get; set; }
+    }
+
+    public class RequestTaskRequest : EntityDto<long>
+    {
+
     }
 
     public class FinishTaskRequest : EntityDto<long>
@@ -85,11 +90,11 @@ namespace PMVOnline.Tasks
         public long TaskId { get; set; }
         public string Comment { get; set; }
         public Guid UserId { get; set; }
-        public CommentFileDto[] FileIds { get; set; } 
+        public CommentFileDto[] FileIds { get; set; }
         public SimpleUserDto User { get; set; }
         public DateTime CreationTime { get; set; }
     }
-     
+
 
     public class TaskActionDto
     {
@@ -117,7 +122,7 @@ namespace PMVOnline.Tasks
     public class ReferenceTaskDto : EntityDto<Guid>
     {
         public long TaskId { get; set; }
-        public long ReferenceTaskId { get; set; } 
+        public long ReferenceTaskId { get; set; }
     }
 
     public class FullTaskDto : EntityDto<long>
@@ -130,10 +135,10 @@ namespace PMVOnline.Tasks
         public Target Target { get; set; }
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
-        public Guid AssigneeId { get; set; } 
-        public Guid CreatorId { get; set; } 
-        public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; } 
-        public virtual SimpleUserDto Assignee { get; set; }  
+        public Guid AssigneeId { get; set; }
+        public Guid CreatorId { get; set; }
+        public virtual ICollection<ReferenceTaskDto> ReferenceTasks { get; set; }
+        public virtual SimpleUserDto Assignee { get; set; }
     }
 
     public class LastHistoryRequestDto

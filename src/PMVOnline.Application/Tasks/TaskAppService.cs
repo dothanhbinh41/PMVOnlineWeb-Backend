@@ -63,9 +63,10 @@ namespace PMVOnline.Tasks
 
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
         {
+            var uid = CurrentUser.GetId();
             var task = ObjectMapper.Map<CreateTaskRequestDto, Task>(request);
             var assignee = await appUserRepository.GetAsync(request.AssigneeId);
-            task.LastModifierId = CurrentUser.GetId();
+            task.LastModifierId = uid;
             var result = await taskRepository.InsertAsync(task, true);
 
             if (result == null)
@@ -74,8 +75,7 @@ namespace PMVOnline.Tasks
             }
 
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
-            await notificationSender.SendNotifications(request.AssigneeId, "Bạn được giao sự vụ");
-            await notificationSender.SendNotifications(await GetAdminUserFollowTaskAsync(task.Id), "Có sự vụ cần duyệt");
+            await notificationSender.SendNotifications(request.AssigneeId, $"Bạn được giao 1 sự vụ mới có Id là #{result.Id}");
 
             if (request.Files?.Length > 0)
             {
@@ -96,6 +96,11 @@ namespace PMVOnline.Tasks
             if (task.Status != Status.Approved)
             {
                 return false;
+            }
+
+            if (CurrentUser.GetId() != task.AssigneeId)
+            {
+                throw new UserFriendlyException("Ban khong the hoan thanh su vu");
             }
 
             task.Status = request.Completed ? Status.Completed : Status.Incompleted;
@@ -228,25 +233,32 @@ namespace PMVOnline.Tasks
         public async Task<bool> ProcessTask(ProcessTaskRequest request)
         {
             var task = await taskRepository.GetAsync(request.Id);
-            if (task.Status != Status.Pending)
+            if (task.Status != Status.Requested)
             {
                 return false;
             }
+
+            var uid = CurrentUser.GetId();
+            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            if (department == null || department?.Department?.Name != DepartmentName.Director)
+            {
+                throw new UserFriendlyException("Ban khong co quyen");
+            }
+
 
             task.Status = request.Approved ? Status.Approved : Status.Rejected;
             task.LastAction = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask;
 
             var updated = await taskRepository.UpdateAsync(task);
-
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask, Note = request.Note });
-
-            await notificationSender.SendNotifications(task.AssigneeId, "Bạn được giao sự vụ");
-            await notificationSender.SendNotifications(task.CreatorId.Value, "Sự vụ được xử lý");
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, uid }).Distinct().ToArray();
+            await notificationSender.SendNotifications(followedUsers, request.Approved ? $"Sự vụ #{task.Id} đã được duyệt" : $"Sự vụ #{task.Id} không được duyệt");
             return true;
         }
 
         public async Task<bool> ReopenTask(ReopenTaskRequest request)
         {
+            var uid = CurrentUser.GetId();
             var task = await taskRepository.GetAsync(d => d.Id == request.Id);
             if (task.Status != Status.Completed || task.Status != Status.Incompleted)
             {
@@ -257,14 +269,18 @@ namespace PMVOnline.Tasks
             task.LastAction = ActionType.Reopen;
             var updated = await taskRepository.UpdateAsync(task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen });
+
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, task.CreatorId.Value }).Where(d => d != uid).Distinct().ToArray();
+            await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được mở lại");
             return true;
         }
 
         public async Task<bool> SendComment(long id, CommentRequestDto request)
         {
+            var uid = CurrentUser.GetId();
             var task = await taskRepository.GetAsync(id);
 
-            var comment = new TaskComment { TaskId = id, Comment = request.Comment, UserId = CurrentUser.GetId() };
+            var comment = new TaskComment { TaskId = id, Comment = request.Comment, UserId = uid };
             if (request.Files?.Length > 0)
             {
                 var commentsFiles = fileRepository.Where(d => request.Files.Contains(d.Id)).ToArray().Select(d => new TaskCommentFile
@@ -284,9 +300,8 @@ namespace PMVOnline.Tasks
                 await taskActionRepository.InsertAsync(new TaskAction { TaskId = id, Action = ActionType.Comment });
                 await taskRepository.UpdateAsync(task);
             }
-
-            await notificationSender.SendNotifications(new Guid[] { task.AssigneeId, task.CreatorId.Value }, "Có bình luận sự vụ");
-            await notificationSender.SendNotifications(GetUserFollowTask(task.Id), "Có bình luận sự vụ");
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).ToArray().Concat(new Guid[] { task.AssigneeId }).Distinct().Where(d => d != uid).ToArray();
+            await notificationSender.SendNotifications(followedUsers, $"Có bình luận cho sự vụ #{task.Id}");
             return true;
         }
 
@@ -389,16 +404,39 @@ namespace PMVOnline.Tasks
             return ac?.Note;
         }
 
-
-        Guid[] GetUserFollowTask(long taskId)
-        {
-            return taskFollowRepostiory.Where(d => d.TaskId == taskId && d.Followed).Select(d => d.UserId).ToArray();
-        }
-
-        async Task<Guid[]> GetAdminUserFollowTaskAsync(long taskId)
+        async Task<Guid[]> GetAdminUserAsync()
         {
             var users = await departmentManager.GetAllUserAsync(DepartmentName.Director);
             return users.Select(d => d.UserId).ToArray();
+        }
+
+        public async Task<bool> RequestTask(RequestTaskRequest request)
+        {
+            var task = await taskRepository.GetAsync(request.Id);
+            if (task.Status != Status.Pending)
+            {
+                return false;
+            }
+
+            var uid = CurrentUser.GetId();
+            if (uid != task.CreatorId)
+            {
+                throw new UserFriendlyException("Ban khong co quyen");
+            }
+
+            task.Status = Status.Requested;
+            task.LastAction = ActionType.RequestTask;
+            var updated = await taskRepository.UpdateAsync(task);
+
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.RequestTask });
+
+
+            var adminUsers = await GetAdminUserAsync();
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).ToArray().Concat(new Guid[] { task.AssigneeId }).Distinct().Where(d => d != uid && !adminUsers.Contains(d)).ToArray();
+
+            await notificationSender.SendNotifications(adminUsers, $"Sự vụ #{task.Id} cần được duyệt");
+            await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được gửi yêu cầu duyệt");
+            return true;
         }
     }
 }
