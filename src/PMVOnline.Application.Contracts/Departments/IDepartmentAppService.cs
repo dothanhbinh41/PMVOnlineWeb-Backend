@@ -12,9 +12,9 @@ namespace PMVOnline.Departments
         Task<bool> AddUserToDeparmentAsync(CreateDeparmentUserDto request);
         Task<bool> UpdateUserToDeparmentAsync(UpdateDeparmentUserDto request);
         Task<bool> DeleteUserToDeparmentAsync(DeleteDeparmentUserDto request);
-        Task<DepartmentDto[]> GetAllDepartmentAsync();
-        Task<DepartmentUserDto[]> GetAllUserAsync(int departmentId);
-        Task<DepartmentUserDto[]> GetAllUserAsync(string department);
+        Task<DepartmentDto[]> GetAllDepartmentsAsync();
+        Task<DepartmentUserDto[]> GetDepartmentUsersAsync(int departmentId);
+        Task<DepartmentUserDto[]> GetDepartmentUsersAsync(string department);
     }
     public class DepartmentDto
     {

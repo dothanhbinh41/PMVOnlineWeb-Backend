@@ -28,17 +28,17 @@ namespace PMVOnline.Departments
             return departmentManager.DeleteUserToDeparmentAsync(ObjectMapper.Map<DeleteDeparmentUserDto, DepartmentUser>(request));
         }
 
-        public async Task<DepartmentDto[]> GetAllDepartmentAsync()
+        public async Task<DepartmentDto[]> GetAllDepartmentsAsync()
         {
             return ObjectMapper.Map<Department[], DepartmentDto[]>((await departmentManager.GetAllDepartmentAsync()));
         }
 
-        public async Task<DepartmentUserDto[]> GetAllUserAsync(int departmentId)
+        public async Task<DepartmentUserDto[]> GetDepartmentUsersAsync(int departmentId)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(departmentId));
         }
 
-        public async Task<DepartmentUserDto[]> GetAllUserAsync(string department)
+        public async Task<DepartmentUserDto[]> GetDepartmentUsersAsync(string department)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(department));
         }
