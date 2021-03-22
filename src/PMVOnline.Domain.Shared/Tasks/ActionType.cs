@@ -6,11 +6,11 @@ namespace PMVOnline.Tasks
 {
     public enum ActionType
     {
-        CreateTask, ApprovedTask, RejectedTask, Comment, CompletedTask, IncompletedTask, ChangeAssignee, Reopen, Follow, Unfollow
+        CreateTask, RequestTask, ApprovedTask, RejectedTask, Comment, CompletedTask, IncompletedTask, ChangeAssignee, Reopen, Follow, Unfollow
     }
 
     public enum NotificationType
     {
-        RequestTask, AssignTask, ApprovedTask, RejectedTask, Comment, CompletedTask, IncompletedTask
+        CreateTask, RequestTask, AssignTask, ApprovedTask, RejectedTask, Comment, CompletedTask, IncompletedTask
     }
 }

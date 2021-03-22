@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -31,9 +32,8 @@ namespace PMVOnline.Tasks
         readonly IRepository<TaskFile, Guid> taskFileRepostiory;
         readonly IRepository<ReferenceTask, Guid> referenceTaskRepostiory;
         readonly IRepository<IdentityUser, Guid> appUserRepository;
-        readonly IRepository<IdentityRole, Guid> roleRepository;
+        readonly IDepartmentManager departmentManager;
         readonly IRepository<File, Guid> fileRepository;
-        readonly IdentityUserManager identityUserManager;
         readonly INotificationSender notificationSender;
 
         public TaskAppService(
@@ -44,9 +44,8 @@ namespace PMVOnline.Tasks
             IRepository<TaskFile, Guid> taskFileRepostiory,
             IRepository<ReferenceTask, Guid> referenceTaskRepostiory,
             IRepository<IdentityUser, Guid> appUserRepository,
-            IRepository<IdentityRole, Guid> roleRepository,
+            IDepartmentManager departmentManager,
             IRepository<File, Guid> fileRepository,
-            IdentityUserManager identityUserManager,
             INotificationSender notificationSender
             )
         {
@@ -57,9 +56,8 @@ namespace PMVOnline.Tasks
             this.taskFileRepostiory = taskFileRepostiory;
             this.referenceTaskRepostiory = referenceTaskRepostiory;
             this.appUserRepository = appUserRepository;
-            this.roleRepository = roleRepository;
+            this.departmentManager = departmentManager;
             this.fileRepository = fileRepository;
-            this.identityUserManager = identityUserManager;
             this.notificationSender = notificationSender;
         }
 
@@ -76,8 +74,8 @@ namespace PMVOnline.Tasks
             }
 
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
-            await notificationSender.SendNotifications(request.AssigneeId, "Ban co task moi");
-            await notificationSender.SendNotifications(await GetAdminUserFollowTaskAsync(task.Id), "Co task moi");
+            await notificationSender.SendNotifications(request.AssigneeId, "Bạn được giao sự vụ");
+            await notificationSender.SendNotifications(await GetAdminUserFollowTaskAsync(task.Id), "Có sự vụ cần duyệt");
 
             if (request.Files?.Length > 0)
             {
@@ -133,65 +131,65 @@ namespace PMVOnline.Tasks
 
         public async Task<UserDto[]> GetAllMember(Target target)
         {
-            string dep = RoleName.Admin;
+            string dep = DepartmentName.Director;
             if (target == Target.Other)
             {
-                var users = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Count > 0).ToArray();
-                return ObjectMapper.Map<IdentityUser[], UserDto[]>(users);
+                var users = (await departmentManager.GetAllUserAsync()).Select(d => d.User).ToArray();
+                return ObjectMapper.Map<AppUser[], UserDto[]>(users);
             }
 
             switch (target)
             {
                 case Target.BuyCommodity:
-                    dep = RoleName.Buy;
+                    dep = DepartmentName.Buy;
                     break;
                 case Target.BuyOther:
-                    dep = RoleName.Admin;
+                    dep = DepartmentName.Director;
                     break;
                 case Target.Make:
                 case Target.Storage:
-                    dep = RoleName.Storage;
+                    dep = DepartmentName.Stocker;
                     break;
                 case Target.Payment:
-                    dep = RoleName.Account;
+                    dep = DepartmentName.Accountant;
                     break;
 
             }
 
-            var users2 = (await identityUserManager.GetUsersInRoleAsync(dep)).ToArray();
-            return ObjectMapper.Map<IdentityUser[], UserDto[]>(users2);
+            var users2 = (await departmentManager.GetAllUserAsync(dep)).Select(d => d.User).ToArray();
+            return ObjectMapper.Map<AppUser[], UserDto[]>(users2);
         }
 
 
 
         public async Task<UserDto> GetAssignee(Target target)
         {
-            string dep = RoleName.Admin;
+            string dep = DepartmentName.Director;
             if (target == Target.Other)
             {
-                var users = (await appUserRepository.WithDetailsAsync(d => d.Roles)).Where(d => d.Roles != null && d.Roles.Count > 0).Select(d => d.Id).ToArray();
+                var users = (await departmentManager.GetAllUserAsync()).Select(d => d.UserId).ToArray();
                 return await GetUserForTask(users);
             }
 
             switch (target)
             {
                 case Target.BuyCommodity:
-                    dep = RoleName.Buy;
+                    dep = DepartmentName.Buy;
                     break;
                 case Target.BuyOther:
-                    dep = RoleName.Admin;
+                    dep = DepartmentName.Director;
                     break;
                 case Target.Make:
                 case Target.Storage:
-                    dep = RoleName.Storage;
+                    dep = DepartmentName.Stocker;
                     break;
                 case Target.Payment:
-                    dep = RoleName.Account;
+                    dep = DepartmentName.Accountant;
                     break;
 
             }
-            var users2 = await identityUserManager.GetUsersInRoleAsync(dep);
-            return await GetUserForTask(users2.Select(c => c.Id).ToArray());
+            var users2 = (await departmentManager.GetAllUserAsync(dep));
+            return await GetUserForTask(users2.Select(c => c.UserId).ToArray());
         }
 
 
@@ -239,7 +237,11 @@ namespace PMVOnline.Tasks
             task.LastAction = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask;
 
             var updated = await taskRepository.UpdateAsync(task);
+
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask, Note = request.Note });
+
+            await notificationSender.SendNotifications(task.AssigneeId, "Bạn được giao sự vụ");
+            await notificationSender.SendNotifications(task.CreatorId.Value, "Sự vụ được xử lý");
             return true;
         }
 
@@ -282,44 +284,80 @@ namespace PMVOnline.Tasks
                 await taskActionRepository.InsertAsync(new TaskAction { TaskId = id, Action = ActionType.Comment });
                 await taskRepository.UpdateAsync(task);
             }
+
+            await notificationSender.SendNotifications(new Guid[] { task.AssigneeId, task.CreatorId.Value }, "Có bình luận sự vụ");
+            await notificationSender.SendNotifications(GetUserFollowTask(task.Id), "Có bình luận sự vụ");
             return true;
         }
 
         public async Task<MyTaskDto[]> GetMyActions()
         {
-            bool isAdmin = false;
-            var uid = CurrentUser.Id.Value;
-            var user = await appUserRepository.GetAsync(uid);
-            var roles = await identityUserManager.GetRolesAsync(user);
-            isAdmin = roles.Any(c => c == RoleName.Admin);
-            /// user : - create, assign, follow
-            /// 
-            /// admin : pending
-            /// 
-
-            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.CreatorId == uid).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
-            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.AssigneeId == uid).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
-            var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
-            if (isAdmin)
+            var uid = CurrentUser.GetId();
+            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            if (department == null)
             {
-                var pending = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.Status == Status.Pending).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
-                var adminTasks = createdTasks.Concat(assignedTasks).Concat(followTasks).Concat(pending).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Take(20).ToArray();
-                return ObjectMapper.Map<Task[], MyTaskDto[]>(adminTasks);
+                throw new UserFriendlyException("khong ton tai phong ban");
             }
 
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(c => c.LastModificationTime.HasValue ? c.LastModificationTime.Value : c.CreationTime).Distinct().Take(20).ToArray();
+            if (department.Department.Name == DepartmentName.Director)
+            {
+                var allTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
+                    .Where(d => d.Status != Status.Completed && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid) || d.CreatorId == uid || d.AssigneeId == uid))
+                    .OrderByDescending(d => d.LastModificationTime)
+                    .ToArray();
+                return ObjectMapper.Map<Task[], MyTaskDto[]>(allTasks);
+            }
 
-            return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
+            var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
+                   .Where(d => d.Status != Status.Completed &&
+                   (d.TaskFollows.Any(c => c.UserId == uid) || (d.CreatorId == uid && d.Status != Status.Pending) || d.AssigneeId == uid))
+                   .OrderByDescending(d => d.LastModificationTime)
+                   .ToArray();
+            return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
         }
 
         public async Task<MyTaskDto[]> GetMyTasks(PagedResultRequestDto request)
         {
             var uid = CurrentUser.GetId();
-            var createdTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.CreatorId == uid).ToArray().ToArray();
-            var assignedTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Where(d => d.AssigneeId == uid).ToArray();
-            var followTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, c => c.TaskFollows, d => d.Assignee, d => d.Creator)).Where(d => d.TaskFollows.Any(c => c.UserId == uid)).ToArray();
-            var tasks = createdTasks.Concat(assignedTasks).Concat(followTasks).OrderByDescending(d => d.CreationTime).Distinct().Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
-            return ObjectMapper.Map<Task[], MyTaskDto[]>(tasks);
+
+            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            if (department == null)
+            {
+                throw new UserFriendlyException("khong ton tai phong ban");
+            }
+
+            if (department.Department.Name == DepartmentName.Director)
+            {
+                var allTask = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
+                return ObjectMapper.Map<Task[], MyTaskDto[]>(allTask);
+            }
+
+            if (department.IsLeader)
+            {
+                var usersInDeparment = (await departmentManager.GetAllUserAsync(department.DepartmentId)).Select(d => d.UserId).ToArray();
+                var departmentTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
+                    .Where(d =>
+                        usersInDeparment.Contains(d.AssigneeId) ||
+                        d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
+                        d.CreatorId == uid)
+                    .OrderByDescending(d => d.CreationTime)
+                    .Skip(request.SkipCount)
+                    .Take(request.MaxResultCount)
+                    .ToArray();
+                return ObjectMapper.Map<Task[], MyTaskDto[]>(departmentTasks);
+            }
+
+            var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
+                   .Where(d =>
+                       d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
+                       d.CreatorId == uid ||
+                       d.AssigneeId == uid)
+                   .OrderByDescending(d => d.CreationTime)
+                   .Skip(request.SkipCount)
+                   .Take(request.MaxResultCount)
+                   .ToArray();
+            return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
+
         }
 
         public async Task<FullTaskDto> GetTask(long id)
@@ -359,8 +397,8 @@ namespace PMVOnline.Tasks
 
         async Task<Guid[]> GetAdminUserFollowTaskAsync(long taskId)
         {
-            var users = await identityUserManager.GetUsersInRoleAsync("admin");
-            return users.Select(d => d.Id).ToArray();
+            var users = await departmentManager.GetAllUserAsync(DepartmentName.Director);
+            return users.Select(d => d.UserId).ToArray();
         }
     }
 }

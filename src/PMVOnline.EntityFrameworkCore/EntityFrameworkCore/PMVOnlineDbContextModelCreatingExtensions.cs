@@ -88,11 +88,25 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureAuditedAggregateRoot(); 
             });
 
-            builder.Entity<IdentityUserToken>(b =>
+            builder.Entity<UserDeviceToken>(b =>
             {
-                b.ToTable(PMVOnlineConsts.DbTablePrefix + "IdentityUserTokens");
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "UserDeviceTokens");
                 b.ConfigureByConvention();
                 b.ConfigureAuditedAggregateRoot(); 
+            });
+
+            builder.Entity<Department>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "Departments");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
+            });
+
+            builder.Entity<DepartmentUser>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "DepartmentUsers");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
             });
 
 

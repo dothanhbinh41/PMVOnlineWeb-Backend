@@ -24,6 +24,8 @@ namespace PMVOnline.EntityFrameworkCore
     [ConnectionStringName("Default")]
     public class PMVOnlineDbContext : AbpDbContext<PMVOnlineDbContext>
     {
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<DepartmentUser> DepartmentUsers { get; set; }
         public DbSet<Guide> Guides { get; set; }
         public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
         public DbSet<AppUser> Users { get; set; }
