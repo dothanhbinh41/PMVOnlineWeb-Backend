@@ -15,6 +15,7 @@ namespace PMVOnline.Departments
         Task<bool> DeleteUserToDeparmentAsync(DepartmentUser request);
         Task<Department[]> GetAllDepartmentAsync();
         Task<DepartmentUser[]> GetAllUserAsync(int departmentId);
+        Task<DepartmentUser[]> GetAllUserIndepartmentAsync(int[] departmentId);
         Task<DepartmentUser[]> GetAllUserAsync(string department);
         Task<DepartmentUser[]> GetAllUserAsync();
         Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId);
@@ -72,6 +73,11 @@ namespace PMVOnline.Departments
         public async Task<DepartmentUser[]> GetAllUserAsync()
         {
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).ToArray();
+        }
+
+        public async Task<DepartmentUser[]> GetAllUserIndepartmentAsync(int[] departmentId)
+        {
+            return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => departmentId.Contains(c.DepartmentId)).ToArray();
         }
 
         public async Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId)

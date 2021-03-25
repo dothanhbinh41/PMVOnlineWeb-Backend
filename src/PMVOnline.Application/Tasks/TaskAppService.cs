@@ -239,8 +239,8 @@ namespace PMVOnline.Tasks
             }
 
             var uid = CurrentUser.GetId();
-            var department = await departmentManager.GetUserDepartmentsAsync(uid);
-            if (department == null || department?.Department?.Name != DepartmentName.Director)
+            var departments = await departmentManager.GetUserDepartmentsAsync(uid);
+            if (departments == null || !departments.Any(deparment => deparment?.Department?.Name != DepartmentName.Director))
             {
                 throw new UserFriendlyException("Ban khong co quyen");
             }
@@ -308,13 +308,13 @@ namespace PMVOnline.Tasks
         public async Task<MyTaskDto[]> GetMyActions()
         {
             var uid = CurrentUser.GetId();
-            var department = await departmentManager.GetUserDepartmentsAsync(uid);
-            if (department == null)
+            var departments = await departmentManager.GetUserDepartmentsAsync(uid);
+            if (departments == null)
             {
                 throw new UserFriendlyException("khong ton tai phong ban");
             }
 
-            if (department.Department.Name == DepartmentName.Director)
+            if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 var allTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                     .Where(d => d.Status != Status.Completed && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid) || d.CreatorId == uid || d.AssigneeId == uid))
@@ -335,21 +335,23 @@ namespace PMVOnline.Tasks
         {
             var uid = CurrentUser.GetId();
 
-            var department = await departmentManager.GetUserDepartmentsAsync(uid);
-            if (department == null)
+            var departments = await departmentManager.GetUserDepartmentsAsync(uid);
+            if (departments == null)
             {
                 throw new UserFriendlyException("khong ton tai phong ban");
             }
 
-            if (department.Department.Name == DepartmentName.Director)
+            if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 var allTask = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator)).Skip(request.SkipCount).Take(request.MaxResultCount).ToArray();
                 return ObjectMapper.Map<Task[], MyTaskDto[]>(allTask);
             }
 
-            if (department.IsLeader)
+            var departmentLeaders = departments.Where(d => d.IsLeader).ToArray();
+
+            if (departmentLeaders.Length > 0)
             {
-                var usersInDeparment = (await departmentManager.GetAllUserAsync(department.DepartmentId)).Select(d => d.UserId).ToArray();
+                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c=>c.DepartmentId).ToArray())).Select(d => d.UserId).ToArray();
                 var departmentTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                     .Where(d =>
                         usersInDeparment.Contains(d.AssigneeId) ||

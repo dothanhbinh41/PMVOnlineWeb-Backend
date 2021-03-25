@@ -36,12 +36,12 @@ namespace PMVOnline.Departments
             return ObjectMapper.Map<Department[], DepartmentDto[]>((await departmentManager.GetAllDepartmentAsync()));
         }
 
-        public async Task<DepartmentUserDto[]> GetDepartmentUsersAsync(int departmentId)
+        public async Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(departmentId));
         }
 
-        public async Task<DepartmentUserDto[]> GetDepartmentUsersAsync(string department)
+        public async Task<DepartmentUserDto[]> GetDepartmentUsersByNameAsync(string department)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(department));
         }
