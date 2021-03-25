@@ -10,7 +10,8 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentManager
     {
-        Task<bool> AddUserToDeparmentAsync(DepartmentUser request);
+        Task<bool> AddUserToDeparmentAsync(DepartmentUser request);  
+        Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request);  
         Task<bool> UpdateUserToDeparmentAsync(DepartmentUser request);
         Task<bool> DeleteUserToDeparmentAsync(DepartmentUser request);
         Task<Department[]> GetAllDepartmentAsync();
@@ -19,6 +20,7 @@ namespace PMVOnline.Departments
         Task<DepartmentUser[]> GetAllUserAsync(string department);
         Task<DepartmentUser[]> GetAllUserAsync();
         Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId);
+        Department GetDepartmentByName(string name);
     }
 
     public class DepartmentManager : IDomainService, IDepartmentManager
@@ -42,6 +44,12 @@ namespace PMVOnline.Departments
             }
 
             await departmentUserRepository.InsertAsync(request);
+            return true;
+        }
+
+        public async Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request)
+        { 
+            await departmentUserRepository.InsertManyAsync(request);
             return true;
         }
 
@@ -80,6 +88,11 @@ namespace PMVOnline.Departments
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => departmentId.Contains(c.DepartmentId)).ToArray();
         }
 
+        public  Department GetDepartmentByName(string name)
+        {
+            return departmentRepository.FirstOrDefault(d => d.Name == name);
+        }
+
         public async Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId)
         {
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => c.UserId == userId).ToArray();
@@ -94,6 +107,6 @@ namespace PMVOnline.Departments
                 await departmentUserRepository.UpdateAsync(us);
             }
             return true;
-        }
+        } 
     }
 }

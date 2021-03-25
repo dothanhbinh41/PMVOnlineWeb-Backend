@@ -10,13 +10,13 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentAppService
     {
-        Task<bool> AddUserToDeparmentAsync(CreateDeparmentUserDto request);
-        Task<bool> UpdateUserToDeparmentAsync(UpdateDeparmentUserDto request);
-        Task<bool> DeleteUserToDeparmentAsync(DeleteDeparmentUserDto request);
+        Task<bool> AddUserToDeparmentAsync(CreateDepartmentUserDto request);
+        Task<bool> UpdateUserToDeparmentAsync(UpdateDepartmentUserDto request);
+        Task<bool> DeleteUserToDeparmentAsync(DeleteDepartmentUserDto request);
         Task<DepartmentDto[]> GetAllDepartmentsAsync();
         Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId);
         Task<DepartmentUserDto[]> GetDepartmentUsersByNameAsync(string department);
-        Task<DepartmentUserDto[]> GetUserDepartmentsAsync();
+        Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id);
     }
 
     public class DepartmentDto : EntityDto<int>
@@ -27,28 +27,34 @@ namespace PMVOnline.Departments
 
     public class DepartmentUserDto : EntityDto<long>
     {
-        public int DeparmentId { get; set; }
+        public int DepartmentId { get; set; }
         public DepartmentDto Deparment { get; set; }
         public Guid UserId { get; set; }
         public SimpleUserDto User { get; set; }
         public bool IsLeader { get; set; }
     }
-    public class DeleteDeparmentUserDto
+    public class DeleteDepartmentUserDto
     {
-        public int DeparmentId { get; set; }
+        public int DepartmentId { get; set; }
         public Guid UserId { get; set; }
     }
-    public class CreateDeparmentUserDto
+    public class CreateDepartmentUserDto
     {
-        public int DeparmentId { get; set; }
+        public int DepartmentId { get; set; }
         public Guid UserId { get; set; }
         public bool IsLeader { get; set; }
     }
 
-    public class UpdateDeparmentUserDto
+    public class UpdateDepartmentUserDto
     {
-        public int DeparmentId { get; set; }
+        public int DepartmentId { get; set; }
         public Guid UserId { get; set; }
+        public bool IsLeader { get; set; }
+    }
+
+    public class CreateDepartmentNameUserDto
+    {
+        public string Name { get; set; }
         public bool IsLeader { get; set; }
     }
 }

@@ -41,9 +41,9 @@ namespace PMVOnline
             CreateMap<SaveDeviceTokenDto, UserDeviceToken>();
             CreateMap<Department, DepartmentDto>();
             CreateMap<DepartmentUser, DepartmentUserDto>();
-            CreateMap<UpdateDeparmentUserDto, DepartmentUser>();
-            CreateMap<CreateDeparmentUserDto, DepartmentUser>();
-            CreateMap<DeleteDeparmentUserDto, DepartmentUser>();
+            CreateMap<UpdateDepartmentUserDto, DepartmentUser>();
+            CreateMap<CreateDepartmentUserDto, DepartmentUser>();
+            CreateMap<DeleteDepartmentUserDto, DepartmentUser>();
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
                 .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))

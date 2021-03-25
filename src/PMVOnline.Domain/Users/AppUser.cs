@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PMVOnline.Departments;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,5 +47,7 @@ namespace PMVOnline.Users
 
         public virtual bool PhoneNumberConfirmed { get; set; } 
         #endregion
+
+        //public virtual ICollection<DepartmentUser> DepartmentUsers { set; get; }
     }
 }

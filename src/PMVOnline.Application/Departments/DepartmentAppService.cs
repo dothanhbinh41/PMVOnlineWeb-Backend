@@ -21,14 +21,14 @@ namespace PMVOnline.Departments
             this.departmentManager = departmentManager;
         }
 
-        public Task<bool> AddUserToDeparmentAsync(CreateDeparmentUserDto request)
+        public Task<bool> AddUserToDeparmentAsync(CreateDepartmentUserDto request)
         {
-            return departmentManager.AddUserToDeparmentAsync(ObjectMapper.Map<CreateDeparmentUserDto, DepartmentUser>(request));
+            return departmentManager.AddUserToDeparmentAsync(ObjectMapper.Map<CreateDepartmentUserDto, DepartmentUser>(request));
         }
 
-        public Task<bool> DeleteUserToDeparmentAsync(DeleteDeparmentUserDto request)
+        public Task<bool> DeleteUserToDeparmentAsync(DeleteDepartmentUserDto request)
         {
-            return departmentManager.DeleteUserToDeparmentAsync(ObjectMapper.Map<DeleteDeparmentUserDto, DepartmentUser>(request));
+            return departmentManager.DeleteUserToDeparmentAsync(ObjectMapper.Map<DeleteDepartmentUserDto, DepartmentUser>(request));
         }
 
         public async Task<DepartmentDto[]> GetAllDepartmentsAsync()
@@ -46,14 +46,14 @@ namespace PMVOnline.Departments
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(department));
         }
 
-        public async Task<DepartmentUserDto[]> GetUserDepartmentsAsync()
+        public async Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id)
         {
-            return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetUserDepartmentsAsync(CurrentUser.GetId()));
+            return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetUserDepartmentsAsync(id));
         }
 
-        public Task<bool> UpdateUserToDeparmentAsync(UpdateDeparmentUserDto request)
+        public Task<bool> UpdateUserToDeparmentAsync(UpdateDepartmentUserDto request)
         {
-            return departmentManager.UpdateUserToDeparmentAsync(ObjectMapper.Map<UpdateDeparmentUserDto, DepartmentUser>(request));
+            return departmentManager.UpdateUserToDeparmentAsync(ObjectMapper.Map<UpdateDepartmentUserDto, DepartmentUser>(request));
         }
     }
 }
