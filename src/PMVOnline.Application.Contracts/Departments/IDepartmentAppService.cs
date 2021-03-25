@@ -17,6 +17,7 @@ namespace PMVOnline.Departments
         Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId);
         Task<DepartmentUserDto[]> GetDepartmentUsersByNameAsync(string department);
         Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id);
+        Task<DepartmentUserDto[]> GetMyDepartmentsAsync();
     }
 
     public class DepartmentDto : EntityDto<int>

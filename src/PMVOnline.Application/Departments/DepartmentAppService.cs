@@ -46,6 +46,11 @@ namespace PMVOnline.Departments
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(department));
         }
 
+        public Task<DepartmentUserDto[]> GetMyDepartmentsAsync()
+        {
+            return GetUserDepartmentsAsync(CurrentUser.GetId());
+        }
+
         public async Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetUserDepartmentsAsync(id));

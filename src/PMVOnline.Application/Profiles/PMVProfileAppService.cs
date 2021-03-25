@@ -14,27 +14,27 @@ using Volo.Abp.Users;
 
 namespace PMVOnline.Profiles
 {
-    [Dependency(ReplaceServices = true)]
-    [ExposeServices(typeof(IProfileAppService), typeof(ProfileAppService), typeof(PMVProfileAppService))]
-    public class PMVProfileAppService : ProfileAppService
-    {
-        private readonly IRepository<Volo.Abp.Identity.IdentityRole, Guid> roleRepository;
+    //[Dependency(ReplaceServices = true)]
+    //[ExposeServices(typeof(IProfileAppService), typeof(ProfileAppService), typeof(PMVProfileAppService))]
+    //public class PMVProfileAppService : ProfileAppService
+    //{
+    //    private readonly IRepository<Volo.Abp.Identity.IdentityRole, Guid> roleRepository;
 
-        public PMVProfileAppService(IdentityUserManager userManager, IOptions<IdentityOptions> identityOptions, IRepository<Volo.Abp.Identity.IdentityRole, Guid> roleRepository) : base(userManager, identityOptions)
-        {
-            this.roleRepository = roleRepository;
-        }
+    //    public PMVProfileAppService(IdentityUserManager userManager, IOptions<IdentityOptions> identityOptions, IRepository<Volo.Abp.Identity.IdentityRole, Guid> roleRepository) : base(userManager, identityOptions)
+    //    {
+    //        this.roleRepository = roleRepository;
+    //    }
 
-        public async override Task<ProfileDto> GetAsync()
-        {
-            var currentUser = await UserManager.GetByIdAsync(CurrentUser.GetId());
-            var roles = await UserManager.GetRolesAsync(currentUser);
+    //    public async override Task<ProfileDto> GetAsync()
+    //    {
+    //        var currentUser = await UserManager.GetByIdAsync(CurrentUser.GetId());
+    //        var roles = await UserManager.GetRolesAsync(currentUser);
 
-            var fullRoles = roleRepository.Where(d => roles.Contains(d.Name)).ToList();
-            var roleDtos = ObjectMapper.Map<List<Volo.Abp.Identity.IdentityRole>, List<IdentityRoleDto>>(fullRoles);
-            var profile = ObjectMapper.Map<Volo.Abp.Identity.IdentityUser, FullProfileDto>(currentUser);
-            profile.Roles = roleDtos;
-            return profile;
-        }
-    }
+    //        var fullRoles = roleRepository.Where(d => roles.Contains(d.Name)).ToList();
+    //        var roleDtos = ObjectMapper.Map<List<Volo.Abp.Identity.IdentityRole>, List<IdentityRoleDto>>(fullRoles);
+    //        var profile = ObjectMapper.Map<Volo.Abp.Identity.IdentityUser, FullProfileDto>(currentUser);
+    //        profile.Roles = roleDtos;
+    //        return profile;
+    //    }
+    //}
 }
