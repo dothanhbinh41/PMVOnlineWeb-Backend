@@ -239,7 +239,7 @@ namespace PMVOnline.Tasks
             }
 
             var uid = CurrentUser.GetId();
-            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            var department = await departmentManager.GetUserDepartmentsAsync(uid);
             if (department == null || department?.Department?.Name != DepartmentName.Director)
             {
                 throw new UserFriendlyException("Ban khong co quyen");
@@ -308,7 +308,7 @@ namespace PMVOnline.Tasks
         public async Task<MyTaskDto[]> GetMyActions()
         {
             var uid = CurrentUser.GetId();
-            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            var department = await departmentManager.GetUserDepartmentsAsync(uid);
             if (department == null)
             {
                 throw new UserFriendlyException("khong ton tai phong ban");
@@ -335,7 +335,7 @@ namespace PMVOnline.Tasks
         {
             var uid = CurrentUser.GetId();
 
-            var department = await departmentManager.GetUserDepartmentAsync(uid);
+            var department = await departmentManager.GetUserDepartmentsAsync(uid);
             if (department == null)
             {
                 throw new UserFriendlyException("khong ton tai phong ban");

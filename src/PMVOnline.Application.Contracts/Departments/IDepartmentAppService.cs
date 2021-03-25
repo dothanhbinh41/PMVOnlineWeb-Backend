@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 
 namespace PMVOnline.Departments
@@ -15,14 +16,16 @@ namespace PMVOnline.Departments
         Task<DepartmentDto[]> GetAllDepartmentsAsync();
         Task<DepartmentUserDto[]> GetDepartmentUsersAsync(int departmentId);
         Task<DepartmentUserDto[]> GetDepartmentUsersAsync(string department);
+        Task<DepartmentUserDto[]> GetUserDepartmentsAsync();
     }
-    public class DepartmentDto
+
+    public class DepartmentDto : EntityDto<int>
     {
         public string Name { get; set; }
     }
 
 
-    public class DepartmentUserDto
+    public class DepartmentUserDto : EntityDto<long>
     {
         public int DeparmentId { get; set; }
         public DepartmentDto Deparment { get; set; }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,11 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
+using Volo.Abp.Users;
 
 namespace PMVOnline.Departments
 {
+    [Authorize]
     public class DepartmentAppService : ApplicationService, IDepartmentAppService
     {
         readonly IDepartmentManager departmentManager;
@@ -41,6 +44,11 @@ namespace PMVOnline.Departments
         public async Task<DepartmentUserDto[]> GetDepartmentUsersAsync(string department)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetAllUserAsync(department));
+        }
+
+        public async Task<DepartmentUserDto[]> GetUserDepartmentsAsync()
+        {
+            return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetUserDepartmentsAsync(CurrentUser.GetId()));
         }
 
         public Task<bool> UpdateUserToDeparmentAsync(UpdateDeparmentUserDto request)

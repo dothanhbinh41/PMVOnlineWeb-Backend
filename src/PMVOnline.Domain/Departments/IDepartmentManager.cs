@@ -17,7 +17,7 @@ namespace PMVOnline.Departments
         Task<DepartmentUser[]> GetAllUserAsync(int departmentId);
         Task<DepartmentUser[]> GetAllUserAsync(string department);
         Task<DepartmentUser[]> GetAllUserAsync();
-        Task<DepartmentUser> GetUserDepartmentAsync(Guid userId);
+        Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId);
     }
 
     public class DepartmentManager : IDomainService, IDepartmentManager
@@ -74,9 +74,9 @@ namespace PMVOnline.Departments
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).ToArray();
         }
 
-        public async Task<DepartmentUser> GetUserDepartmentAsync(Guid userId)
+        public async Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId)
         {
-            return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).FirstOrDefault(c => c.UserId == userId);
+            return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => c.UserId == userId).ToArray();
         }
 
         public async Task<bool> UpdateUserToDeparmentAsync(DepartmentUser request)
