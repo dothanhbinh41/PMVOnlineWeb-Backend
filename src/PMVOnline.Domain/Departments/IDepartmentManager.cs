@@ -10,10 +10,10 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentManager
     {
-        Task<bool> AddUserToDeparmentAsync(DepartmentUser request);  
+        Task<bool> AddUserToDepartmentAsync(DepartmentUser request);  
         Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request);  
-        Task<bool> UpdateUserToDeparmentAsync(DepartmentUser request);
-        Task<bool> DeleteUserToDeparmentAsync(DepartmentUser request);
+        Task<bool> UpdateUserToDepartmentAsync(DepartmentUser request);
+        Task<bool> DeleteUserToDepartmentAsync(DepartmentUser request);
         Task<Department[]> GetAllDepartmentAsync();
         Task<DepartmentUser[]> GetAllUserAsync(int departmentId);
         Task<DepartmentUser[]> GetAllUserIndepartmentAsync(int[] departmentId);
@@ -35,7 +35,7 @@ namespace PMVOnline.Departments
             this.departmentUserRepository = departmentUserRepository;
         }
 
-        public async Task<bool> AddUserToDeparmentAsync(DepartmentUser request)
+        public async Task<bool> AddUserToDepartmentAsync(DepartmentUser request)
         {
             var us = await departmentUserRepository.FirstOrDefaultAsync(d => d.UserId == request.UserId && d.DepartmentId == request.DepartmentId);
             if (us != null)
@@ -53,7 +53,7 @@ namespace PMVOnline.Departments
             return true;
         }
 
-        public async Task<bool> DeleteUserToDeparmentAsync(DepartmentUser request)
+        public async Task<bool> DeleteUserToDepartmentAsync(DepartmentUser request)
         {
             var us = await departmentUserRepository.FirstOrDefaultAsync(d => d.UserId == request.UserId && d.DepartmentId == request.DepartmentId);
             if (us != null)
@@ -98,7 +98,7 @@ namespace PMVOnline.Departments
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => c.UserId == userId).ToArray();
         }
 
-        public async Task<bool> UpdateUserToDeparmentAsync(DepartmentUser request)
+        public async Task<bool> UpdateUserToDepartmentAsync(DepartmentUser request)
         {
             var us = await departmentUserRepository.FirstOrDefaultAsync(d => d.UserId == request.UserId && d.DepartmentId == request.DepartmentId);
             if (us != null)

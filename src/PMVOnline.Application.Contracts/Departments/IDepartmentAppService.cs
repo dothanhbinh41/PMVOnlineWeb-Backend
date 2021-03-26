@@ -10,9 +10,9 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentAppService
     {
-        Task<bool> AddUserToDeparmentAsync(CreateDepartmentUserDto request);
-        Task<bool> UpdateUserToDeparmentAsync(UpdateDepartmentUserDto request);
-        Task<bool> DeleteUserToDeparmentAsync(DeleteDepartmentUserDto request);
+        Task<bool> AddUserToDepartmentAsync(CreateDepartmentUserDto request);
+        Task<bool> UpdateUserToDepartmentAsync(UpdateDepartmentUserDto request);
+        Task<bool> DeleteUserToDepartmentAsync(DeleteDepartmentUserDto request);
         Task<DepartmentDto[]> GetAllDepartmentsAsync();
         Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId);
         Task<DepartmentUserDto[]> GetDepartmentUsersByNameAsync(string department);
@@ -29,7 +29,7 @@ namespace PMVOnline.Departments
     public class DepartmentUserDto : EntityDto<long>
     {
         public int DepartmentId { get; set; }
-        public DepartmentDto Deparment { get; set; }
+        public DepartmentDto Department { get; set; }
         public Guid UserId { get; set; }
         public SimpleUserDto User { get; set; }
         public bool IsLeader { get; set; }
