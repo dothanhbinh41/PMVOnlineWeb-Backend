@@ -146,7 +146,7 @@ namespace PMVOnline.Tasks
         public ActionType Action { get; set; }
     }
 
-    public class GetMyTaskRequestDto : PagedResultRequestDto
+    public class SearchMyTaskRequestDto : PagedResultRequestDto
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

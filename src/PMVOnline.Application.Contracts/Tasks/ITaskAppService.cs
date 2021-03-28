@@ -21,7 +21,7 @@ namespace PMVOnline.Tasks
         Task<UserDto> GetAssignee(Target target);
         Task<UserDto[]> GetAllMember(Target target);
         Task<MyTaskDto[]> GetMyActions();
-        Task<MyTaskDto[]> GetMyTasks(GetMyTaskRequestDto request);
+        Task<MyTaskDto[]> SearchMyTasks(SearchMyTaskRequestDto request);
         Task<FullTaskDto> GetTask(long id);
         Task<TaskCommentDto[]> GetTaskComments(long id);
         Task<FileDto[]> GetTaskFiles(long id);

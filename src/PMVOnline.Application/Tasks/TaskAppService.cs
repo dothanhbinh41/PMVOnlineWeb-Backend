@@ -64,7 +64,7 @@ namespace PMVOnline.Tasks
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
         {
             var uid = CurrentUser.GetId();
-            var task = ObjectMapper.Map<CreateTaskRequestDto, Task>(request); 
+            var task = ObjectMapper.Map<CreateTaskRequestDto, Task>(request);
             task.DueDate = task.DueDate.ToUniversalTime();
             var assignee = await appUserRepository.GetAsync(request.AssigneeId);
             task.LastModifierId = uid;
@@ -333,7 +333,7 @@ namespace PMVOnline.Tasks
             return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
         }
 
-        public async Task<MyTaskDto[]> GetMyTasks(GetMyTaskRequestDto request)
+        public async Task<MyTaskDto[]> SearchMyTasks(SearchMyTaskRequestDto request)
         {
             var uid = CurrentUser.GetId();
 
@@ -346,9 +346,9 @@ namespace PMVOnline.Tasks
             if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 var allTask = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator))
-                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime >= request.StartDate.Value)
-                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime <= request.EndDate.Value)
-                    .WhereIf(request.Users != null, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
+                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
+                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
+                    .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
                     .OrderByDescending(d => d.CreationTime)
                     .Skip(request.SkipCount)
                     .Take(request.MaxResultCount)
@@ -366,9 +366,9 @@ namespace PMVOnline.Tasks
                         usersInDeparment.Contains(d.AssigneeId) ||
                         d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
                         d.CreatorId == uid)
-                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime >= request.StartDate.Value)
-                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime <= request.EndDate.Value)
-                    .WhereIf(request.Users != null, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
+                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
+                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
+                    .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
                     .OrderByDescending(d => d.CreationTime)
                     .Skip(request.SkipCount)
                     .Take(request.MaxResultCount)
@@ -381,9 +381,9 @@ namespace PMVOnline.Tasks
                        d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
                        d.CreatorId == uid ||
                        d.AssigneeId == uid)
-                   .WhereIf(request.StartDate.HasValue, d => d.CreationTime >= request.StartDate.Value)
-                   .WhereIf(request.EndDate.HasValue, d => d.CreationTime <= request.EndDate.Value)
-                   .WhereIf(request.Users != null, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
+                   .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
+                   .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
+                   .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
                    .OrderByDescending(d => d.CreationTime)
                    .Skip(request.SkipCount)
                    .Take(request.MaxResultCount)
