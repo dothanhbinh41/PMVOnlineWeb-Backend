@@ -25,5 +25,6 @@ namespace PMVOnline.Tasks
         Task<FullTaskDto> GetTask(long id);
         Task<TaskCommentDto[]> GetTaskComments(long id);
         Task<FileDto[]> GetTaskFiles(long id);
+        Task<SimpleUserDto[]> GetUsersInMyTasks();
     }
 }

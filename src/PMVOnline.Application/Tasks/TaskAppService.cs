@@ -269,7 +269,7 @@ namespace PMVOnline.Tasks
             task.LastAction = ActionType.Reopen;
             var updated = await taskRepository.UpdateAsync(task);
 
-            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen }); 
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen });
             var directors = (await departmentManager.GetAllUserAsync(DepartmentName.Director))?.ToArray()?.Select(d => d.UserId) ?? new Guid[0];
             var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).ToArray().Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, task.CreatorId.Value }).Concat(directors).Where(d => d != uid).Distinct().ToArray();
             await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được mở lại");
@@ -375,7 +375,6 @@ namespace PMVOnline.Tasks
                    .Take(request.MaxResultCount)
                    .ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
-
         }
 
         public async Task<FullTaskDto> GetTask(long id)
@@ -440,6 +439,33 @@ namespace PMVOnline.Tasks
             await notificationSender.SendNotifications(adminUsers, $"Sự vụ #{task.Id} cần được duyệt");
             await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được gửi yêu cầu duyệt");
             return true;
+        }
+
+        public async Task<SimpleUserDto[]> GetUsersInMyTasks()
+        {
+            var uid = CurrentUser.GetId();
+
+            var departments = await departmentManager.GetUserDepartmentsAsync(uid);
+            if (departments == null)
+            {
+                throw new UserFriendlyException("khong ton tai phong ban");
+            }
+
+            if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
+            {
+                return ObjectMapper.Map<AppUser[], SimpleUserDto[]>((await departmentManager.GetAllUserAsync()).ToArray().Select(d => d.User).ToArray());
+            }
+
+            var departmentLeaders = departments.Where(d => d.IsLeader).ToArray();
+
+            if (departmentLeaders.Length > 0)
+            {
+                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.User).ToArray();
+                return ObjectMapper.Map<AppUser[], SimpleUserDto[]>(usersInDeparment);
+            }
+
+            var users = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.Creator)).Where(d => d.Assignee != null && d.Creator != null).ToArray().Select(d => new AppUser[] { d.Assignee, d.Creator }).SelectMany(d => d).Where(d => d.Id != uid).Distinct().ToArray();
+            return ObjectMapper.Map<AppUser[], SimpleUserDto[]>(users);
         }
     }
 }
