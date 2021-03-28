@@ -240,7 +240,7 @@ namespace PMVOnline.Tasks
 
             var uid = CurrentUser.GetId();
             var departments = await departmentManager.GetUserDepartmentsAsync(uid);
-            if (departments == null || !departments.Any(deparment => deparment?.Department?.Name != DepartmentName.Director))
+            if (departments == null || !departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 throw new UserFriendlyException("Ban khong co quyen");
             }
@@ -251,7 +251,7 @@ namespace PMVOnline.Tasks
 
             var updated = await taskRepository.UpdateAsync(task);
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = request.Approved ? ActionType.ApprovedTask : ActionType.RejectedTask, Note = request.Note });
-            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, uid }).Distinct().ToArray();
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).ToArray().Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, uid }).Distinct().ToArray();
             await notificationSender.SendNotifications(followedUsers, request.Approved ? $"Sự vụ #{task.Id} đã được duyệt" : $"Sự vụ #{task.Id} không được duyệt");
             return true;
         }
@@ -268,9 +268,10 @@ namespace PMVOnline.Tasks
             task.Status = Status.Pending;
             task.LastAction = ActionType.Reopen;
             var updated = await taskRepository.UpdateAsync(task);
-            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen });
 
-            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, task.CreatorId.Value }).Where(d => d != uid).Distinct().ToArray();
+            await taskActionRepository.InsertAsync(new TaskAction { TaskId = request.Id, Action = ActionType.Reopen }); 
+            var directors = (await departmentManager.GetAllUserAsync(DepartmentName.Director))?.ToArray()?.Select(d => d.UserId) ?? new Guid[0];
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).ToArray().Select(d => d.UserId).Concat(new Guid[] { task.AssigneeId, task.CreatorId.Value }).Concat(directors).Where(d => d != uid).Distinct().ToArray();
             await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được mở lại");
             return true;
         }
@@ -351,7 +352,7 @@ namespace PMVOnline.Tasks
 
             if (departmentLeaders.Length > 0)
             {
-                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c=>c.DepartmentId).ToArray())).Select(d => d.UserId).ToArray();
+                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.UserId).ToArray();
                 var departmentTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                     .Where(d =>
                         usersInDeparment.Contains(d.AssigneeId) ||
@@ -434,7 +435,7 @@ namespace PMVOnline.Tasks
 
 
             var adminUsers = await GetAdminUserAsync();
-            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).Select(d => d.UserId).ToArray().Concat(new Guid[] { task.AssigneeId }).Distinct().Where(d => d != uid && !adminUsers.Contains(d)).ToArray();
+            var followedUsers = taskFollowRepostiory.Where(d => d.TaskId == task.Id && d.Followed).ToArray().Select(d => d.UserId).ToArray().Concat(new Guid[] { task.AssigneeId }).Distinct().Where(d => d != uid && !adminUsers.Contains(d)).ToArray();
 
             await notificationSender.SendNotifications(adminUsers, $"Sự vụ #{task.Id} cần được duyệt");
             await notificationSender.SendNotifications(followedUsers, $"Sự vụ #{task.Id} đã được gửi yêu cầu duyệt");
