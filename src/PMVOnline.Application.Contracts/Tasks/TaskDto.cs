@@ -145,4 +145,11 @@ namespace PMVOnline.Tasks
     {
         public ActionType Action { get; set; }
     }
+
+    public class GetMyTaskRequestDto : PagedResultRequestDto
+    {
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public Guid[] Users { get; set; }
+    }
 }
