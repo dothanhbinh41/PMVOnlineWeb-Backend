@@ -13,9 +13,7 @@ namespace PMVOnline
     {
         public PMVOnlineApplicationAutoMapperProfile()
         {
-            CreateMap<CreateTaskRequestDto, Task>()
-                .ForMember(d => d.ReferenceTasks, c => c.Ignore())
-                .ForMember(d => d.TaskFiles, c => c.Ignore());
+            CreateMap<CreateTaskRequestDto, Task>();
             CreateMap<IdentityUser, SimpleUserDto>();
             CreateMap<IdentityUser, UserDto>();
             CreateMap<IdentityUser, FullProfileDto>() 

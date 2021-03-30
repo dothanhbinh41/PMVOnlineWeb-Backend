@@ -22,10 +22,8 @@ namespace PMVOnline.Tasks
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; }
 
-        public virtual ICollection<TaskFile> TaskFiles { get; set; }
-        public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; }
-        public virtual ICollection<TaskAction> TaskHistory { get; set; }
-         
+
+        public virtual ICollection<TaskAction> TaskHistory { get; set; } 
 
         [ForeignKey(nameof(AssigneeId))]
         public virtual AppUser Assignee { get; set; }

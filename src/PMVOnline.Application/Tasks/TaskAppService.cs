@@ -393,7 +393,7 @@ namespace PMVOnline.Tasks
 
         public async Task<FullTaskDto> GetTask(long id)
         {
-            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.ReferenceTasks)).FirstOrDefault(d => d.Id == id);
+            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee)).FirstOrDefault(d => d.Id == id);
             if (task == null)
             {
                 return null;
@@ -480,6 +480,12 @@ namespace PMVOnline.Tasks
 
             var users = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.Creator)).Where(d => d.Assignee != null && d.Creator != null).ToArray().Select(d => new AppUser[] { d.Assignee, d.Creator }).SelectMany(d => d).Where(d => d.Id != uid).Distinct().ToArray();
             return ObjectMapper.Map<AppUser[], SimpleUserDto[]>(users);
+        }
+
+        public async Task<MyTaskDto[]> GetReferenceTasks(long id)
+        {
+            var tasks = (await referenceTaskRepostiory.WithDetailsAsync(d => d.Task)).Where(d => d.TaskId == id).ToArray().Select(d => d.Task).ToArray();
+            return ObjectMapper.Map<Task[],MyTaskDto[]>(tasks);
         }
     }
 }
