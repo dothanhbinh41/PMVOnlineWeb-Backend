@@ -9,7 +9,7 @@ namespace PMVOnline.Tasks
         public long TaskId { get; set; }
         public long ReferenceTaskId { get; set; }
 
-        [ForeignKey(nameof(ReferenceTaskId))] 
+        [ForeignKey(nameof(TaskId))] 
         public virtual Task Task { get; set; } 
     }
 }

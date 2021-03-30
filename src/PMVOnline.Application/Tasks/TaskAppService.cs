@@ -484,7 +484,7 @@ namespace PMVOnline.Tasks
 
         public async Task<MyTaskDto[]> GetReferenceTasks(long id)
         {
-            var tasks = referenceTaskRepostiory.Where(d => d.TaskId == id).ToArray().Select(d => d.TaskId).ToArray();
+            var tasks = referenceTaskRepostiory.Where(d => d.TaskId == id).ToArray().Select(d => d.ReferenceTaskId).ToArray();
             var rtasks = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.Creator, d => d.LastModifier)).Where(d => tasks.Contains(d.Id)).ToArray();
             return ObjectMapper.Map<Task[],MyTaskDto[]>(rtasks);
         }
