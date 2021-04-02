@@ -319,7 +319,7 @@ namespace PMVOnline.Tasks
             if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 var allTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
-                    .Where(d => d.Status != Status.Completed && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid) || d.CreatorId == uid || d.AssigneeId == uid))
+                    .Where(d => d.Status != Status.Completed && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || d.CreatorId == uid || d.AssigneeId == uid))
                     .OrderByDescending(d => d.LastModificationTime)
                     .ToArray();
                 return ObjectMapper.Map<Task[], MyTaskDto[]>(allTasks);
@@ -327,7 +327,7 @@ namespace PMVOnline.Tasks
 
             var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                    .Where(d => d.Status != Status.Completed &&
-                   (d.TaskFollows.Any(c => c.UserId == uid) || (d.CreatorId == uid && d.Status != Status.Pending) || d.AssigneeId == uid))
+                   (d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || (d.CreatorId == uid && d.Status != Status.Pending) || d.AssigneeId == uid))
                    .OrderByDescending(d => d.LastModificationTime)
                    .ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
