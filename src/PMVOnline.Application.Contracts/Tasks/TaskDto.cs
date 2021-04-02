@@ -19,6 +19,10 @@ namespace PMVOnline.Tasks
         public Guid AssigneeId { get; set; }
     }
 
+    public class UpdateTaskRequestDto : CreateTaskRequestDto
+    {
+        public long Id { get; set; }
+    }
     public class TaskHistoryRequestDto : PagedResultRequestDto
     {
     }

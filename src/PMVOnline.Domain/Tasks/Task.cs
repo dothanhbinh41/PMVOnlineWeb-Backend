@@ -24,6 +24,8 @@ namespace PMVOnline.Tasks
 
 
         public virtual ICollection<TaskAction> TaskHistory { get; set; } 
+        public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; } 
+        public virtual ICollection<TaskFile> TaskFiles { get; set; } 
 
         [ForeignKey(nameof(AssigneeId))]
         public virtual AppUser Assignee { get; set; }

@@ -486,7 +486,75 @@ namespace PMVOnline.Tasks
         {
             var tasks = referenceTaskRepostiory.Where(d => d.TaskId == id).ToArray().Select(d => d.ReferenceTaskId).ToArray();
             var rtasks = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.Creator, d => d.LastModifier)).Where(d => tasks.Contains(d.Id)).ToArray();
-            return ObjectMapper.Map<Task[],MyTaskDto[]>(rtasks);
+            return ObjectMapper.Map<Task[], MyTaskDto[]>(rtasks);
+        }
+
+        public async Task<TaskDto> UpdateTask(UpdateTaskRequestDto request)
+        {
+            var uid = CurrentUser.GetId();
+            var task = (await taskRepository.WithDetailsAsync(d => d.ReferenceTasks, d => d.TaskFiles)).FirstOrDefault(d => d.Id == request.Id);
+            if (task == null || task.CreatorId != uid)
+            {
+                throw new Exception();
+            }
+
+            if (task.DueDate != request.DueDate.ToUniversalTime())
+            {
+                task.DueDate = request.DueDate.ToUniversalTime();
+            }
+            if (task.AssigneeId != request.AssigneeId)
+            {
+                task.AssigneeId = request.AssigneeId;
+            }
+            if (task.Content != request.Content)
+            {
+                task.Content = request.Content;
+            }
+            if (task.Title != request.Title)
+            {
+                task.Title = request.Title;
+            }
+            if (task.Priority != request.Priority)
+            {
+                task.Priority = request.Priority;
+            }
+
+            var result = await taskRepository.UpdateAsync(task, true);
+
+            var refe = task.ReferenceTasks.ToArray().Select(d => d.ReferenceTaskId).ToArray();
+            var removeTasks = refe.Except(request.ReferenceTasks ?? new long[0]).ToArray();
+            var insertTasks = (request.ReferenceTasks ?? new long[0]).Except(refe).ToArray();
+
+            if (removeTasks.Length > 0)
+            {
+                var rmTaskFiles = referenceTaskRepostiory.Where(d => d.TaskId == task.Id && removeTasks.Contains(d.ReferenceTaskId)).ToArray();
+                await referenceTaskRepostiory.DeleteManyAsync(rmTaskFiles);
+            }
+
+            if (insertTasks.Length > 0)
+            {
+                await referenceTaskRepostiory.InsertManyAsync(insertTasks.Select(d => new ReferenceTask { TaskId = task.Id, ReferenceTaskId = d }));
+            }
+
+            var assignee = await appUserRepository.GetAsync(request.AssigneeId);
+
+            var taskFiles = task.TaskFiles.ToArray().Select(d => d.FileId).ToArray();
+            var removeFiles = taskFiles.Except(request.Files ?? new Guid[0]).ToArray();
+            var insertFiles = (request.Files ?? new Guid[0]).Except(taskFiles).ToArray();
+
+            if (removeFiles.Length > 0)
+            {
+                var rmTaskFiles = taskFileRepostiory.Where(d => d.TaskId == task.Id && removeFiles.Contains(d.FileId)).ToArray();
+                await taskFileRepostiory.DeleteManyAsync(rmTaskFiles);
+            }
+
+            if (insertFiles.Length > 0)
+            {
+                await taskFileRepostiory.InsertManyAsync(insertFiles.Select(d => new TaskFile { TaskId = task.Id, FileId = d }));
+            }
+
+
+            return ObjectMapper.Map<Task, TaskDto>(result);
         }
     }
 }

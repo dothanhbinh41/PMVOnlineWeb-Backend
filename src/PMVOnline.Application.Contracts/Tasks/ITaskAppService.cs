@@ -10,6 +10,7 @@ namespace PMVOnline.Tasks
     public interface ITaskAppService
     {
         Task<TaskDto> CreateTask(CreateTaskRequestDto request);
+        Task<TaskDto> UpdateTask(UpdateTaskRequestDto request);
         Task<TaskActionDto[]> GetTaskHistory(long id);
         Task<string> GetNote(long id);
         Task<bool> SendComment(long id, CommentRequestDto request);
