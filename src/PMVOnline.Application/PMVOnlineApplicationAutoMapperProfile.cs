@@ -29,6 +29,7 @@ namespace PMVOnline
             CreateMap<Task, TaskDto>();
             CreateMap<IdentityUserDto, AppUser>();
             CreateMap<AppUser, SimpleUserDto>();
+            CreateMap<AppUser, UserDto>();
             CreateMap<Task, MyTaskDto>();
             CreateMap<TaskFile, TaskFileDto>();
             CreateMap<ReferenceTask, ReferenceTaskDto>();

@@ -68,8 +68,7 @@ namespace PMVOnline.Tasks
     }
 
     public class UserDto : SimpleUserDto
-    {
-        public ICollection<RoleDto> Roles { set; get; }
+    { 
     }
 
     public class RoleDto
