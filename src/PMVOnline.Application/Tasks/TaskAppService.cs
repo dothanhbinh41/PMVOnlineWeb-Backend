@@ -349,7 +349,7 @@ namespace PMVOnline.Tasks
                     .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
                     .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                     .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
-                    .OrderByDescending(d => d.CreationTime)
+                    .OrderByDescending(d => d.Id)
                     .Skip(request.SkipCount)
                     .Take(request.MaxResultCount)
                     .ToArray();
@@ -369,7 +369,7 @@ namespace PMVOnline.Tasks
                     .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
                     .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                     .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
-                    .OrderByDescending(d => d.CreationTime)
+                    .OrderByDescending(d => d.Id)
                     .Skip(request.SkipCount)
                     .Take(request.MaxResultCount)
                     .ToArray();
@@ -384,7 +384,7 @@ namespace PMVOnline.Tasks
                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                    .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
-                   .OrderByDescending(d => d.CreationTime)
+                   .OrderByDescending(d => d.Id)
                    .Skip(request.SkipCount)
                    .Take(request.MaxResultCount)
                    .ToArray();
