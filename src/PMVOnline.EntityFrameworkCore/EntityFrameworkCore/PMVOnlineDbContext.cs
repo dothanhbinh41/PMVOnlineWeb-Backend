@@ -2,6 +2,7 @@
 using PMVOnline.Departments;
 using PMVOnline.Files;
 using PMVOnline.Guides;
+using PMVOnline.Targets;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
 using Volo.Abp.Data;
@@ -25,6 +26,8 @@ namespace PMVOnline.EntityFrameworkCore
     public class PMVOnlineDbContext : AbpDbContext<PMVOnlineDbContext>
     {
         public DbSet<Department> Departments { get; set; }
+        public DbSet<Target> Targets { get; set; }
+        public DbSet<DepartmentTarget> DepartmentTargets { get; set; }
         public DbSet<DepartmentUser> DepartmentUsers { get; set; }
         public DbSet<Guide> Guides { get; set; }
         public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
