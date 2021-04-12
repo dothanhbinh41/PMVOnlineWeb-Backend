@@ -16,7 +16,7 @@ namespace PMVOnline.Departments
     {
         readonly IRepository<Department, int> departmentRepository;
         readonly IRepository<DepartmentUser, long> departmentUserRepository;
-        private readonly IRepository<IdentityUser, Guid> appUserRepository;
+        readonly IRepository<IdentityUser, Guid> appUserRepository;
 
         public DepartmentsSeedContributor(
             IRepository<Department, int> departmentRepository,
