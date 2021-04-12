@@ -65,40 +65,40 @@ namespace PMVOnline.Targets
                 {
                     Name = All,
                 }
-            });
+            },true);
 
             var buy = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Buy);
             var depBuy = await departmentRepository.FirstOrDefaultAsync(d => d.Name == DepartmentName.Buy);
             if (buy != null && depBuy != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = buy.Id, DepartmentId = depBuy.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = buy.Id, DepartmentId = depBuy.Id }, true);
             }
 
             var pay = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Pay);
             var accountant = await departmentRepository.FirstOrDefaultAsync(d => d.Name == DepartmentName.Accountant);
             if (pay != null && accountant != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = pay.Id, DepartmentId = accountant.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = pay.Id, DepartmentId = accountant.Id }, true);
             }
 
             var check = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Check);
             var stocker = await departmentRepository.FirstOrDefaultAsync(d => d.Name == DepartmentName.Stocker);
             if (check != null && stocker != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = check.Id, DepartmentId = stocker.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = check.Id, DepartmentId = stocker.Id }, true);
             }
 
-            var made = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Made); 
+            var made = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Made);
             if (made != null && stocker != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = made.Id, DepartmentId = stocker.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = made.Id, DepartmentId = stocker.Id }, true);
             }
 
             var confirm = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == Confirm);
             var director = await departmentRepository.FirstOrDefaultAsync(d => d.Name == DepartmentName.Director);
             if (confirm != null && director != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = confirm.Id, DepartmentId = director.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = confirm.Id, DepartmentId = director.Id }, true);
             }
 
             var all = await targetRepostiory.FirstOrDefaultAsync(d => d.Name == All);
@@ -108,20 +108,20 @@ namespace PMVOnline.Targets
             }
             if (buy != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = depBuy.Id });
-            } 
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = depBuy.Id }, true);
+            }
             if (accountant != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = accountant.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = accountant.Id }, true);
             }
             if (stocker != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = stocker.Id });
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = stocker.Id }, true);
             }
             if (director != null)
             {
-                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = director.Id });
-            } 
+                await departmentTargetRepostiory.InsertAsync(new DepartmentTarget { TargetId = all.Id, DepartmentId = director.Id }, true);
+            }
         }
     }
 }
