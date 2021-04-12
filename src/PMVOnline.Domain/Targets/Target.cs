@@ -18,7 +18,7 @@ namespace PMVOnline.Targets
 
     public class DepartmentTarget : FullAuditedAggregateRoot<int>
     {
-        public long DepartmentId { get; set; }
+        public int DepartmentId { get; set; }
         public int TargetId { get; set; }
 
         [ForeignKey(nameof(TargetId))]
