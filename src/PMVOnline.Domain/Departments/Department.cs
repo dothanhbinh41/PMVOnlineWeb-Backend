@@ -9,6 +9,14 @@ namespace PMVOnline.Departments
 {
     public class Department : FullAuditedAggregateRoot<int>
     {
+        public Department()
+        {
+
+        }
+        public Department(int id):base(id)
+        {
+
+        }
         public string Name { get; set; } 
         public virtual ICollection<DepartmentUser> DepartmentUsers { get; set; }
     }

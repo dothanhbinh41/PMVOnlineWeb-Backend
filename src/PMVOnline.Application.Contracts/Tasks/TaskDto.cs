@@ -1,4 +1,5 @@
 ﻿using PMVOnline.Files;
+using PMVOnline.Targets;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,7 @@ namespace PMVOnline.Tasks
     {
         public string Title { get; set; }
         public string Content { get; set; }
-        public Target Target { get; set; }
+        public int TargetId { get; set; }
         public Priority Priority { get; set; }
         public DateTime DueDate { get; set; }
         public Guid[] Files { get; set; }
@@ -83,7 +84,7 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
-        public Target Target { get; set; }
+        public int TargetId { get; set; }
         public Status Status { get; set; }
         public Guid AssigneeId { get; set; }
     }
@@ -114,7 +115,8 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
-        public Target Target { get; set; }
+        public int TargetId { get; set; }
+        public TargetDto Target { get; set; }
         public Status Status { get; set; }
         public SimpleUserDto Assignee { get; set; }
         public SimpleUserDto Creator { get; set; }
@@ -135,7 +137,8 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
-        public Target Target { get; set; }
+        public TargetDto Target { get; set; }
+        public int TargetId { get; set; }
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; }

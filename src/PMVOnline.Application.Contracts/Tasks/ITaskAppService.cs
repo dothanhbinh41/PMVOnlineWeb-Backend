@@ -19,8 +19,8 @@ namespace PMVOnline.Tasks
         Task<bool> FinishTask(FinishTaskRequest request);
         Task<bool> ReopenTask(ReopenTaskRequest request);
         Task<bool> FollowTask(FollowTaskRequest request);
-        Task<UserDto> GetAssignee(Target target);
-        Task<UserDto[]> GetAllMember(Target target);
+        Task<UserDto> GetAssignee(int target);
+        Task<UserDto[]> GetAllMember(int target);
         Task<MyTaskDto[]> GetMyActions();
         Task<MyTaskDto[]> SearchMyTasks(SearchMyTaskRequestDto request);
         Task<MyTaskDto[]> GetReferenceTasks(long id);

@@ -9,7 +9,12 @@ using Volo.Abp.Application.Services;
 namespace PMVOnline.Departments
 {
     public interface IDepartmentAppService
-    {
+    { 
+        Task<DepartmentDto> CreateTargetsAsync(NameDepartmentDto request);
+        Task<DepartmentDto> UpdateTargetsAsync(int id, NameDepartmentDto request);
+        Task<bool> DeleteTargetsAsync(int id);
+
+
         Task<bool> AddUserToDepartmentAsync(CreateDepartmentUserDto request);
         Task<bool> UpdateUserToDepartmentAsync(UpdateDepartmentUserDto request);
         Task<bool> DeleteUserToDepartmentAsync(DeleteDepartmentUserDto request);
@@ -25,6 +30,10 @@ namespace PMVOnline.Departments
         public string Name { get; set; }
     }
 
+    public class NameDepartmentDto
+    {
+        public string Name { get; set; }
+    }
 
     public class DepartmentUserDto : EntityDto<long>
     {

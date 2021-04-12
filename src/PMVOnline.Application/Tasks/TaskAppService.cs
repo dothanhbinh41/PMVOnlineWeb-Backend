@@ -2,6 +2,7 @@
 using PMVOnline.Departments;
 using PMVOnline.Files;
 using PMVOnline.Notifications;
+using PMVOnline.Targets;
 using PMVOnline.Users;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ namespace PMVOnline.Tasks
         readonly IDepartmentManager departmentManager;
         readonly IRepository<File, Guid> fileRepository;
         readonly INotificationSender notificationSender;
+        readonly ITargetManager targetManager;
 
         public TaskAppService(
             IRepository<Task, long> taskRepository,
@@ -46,7 +48,8 @@ namespace PMVOnline.Tasks
             IRepository<IdentityUser, Guid> appUserRepository,
             IDepartmentManager departmentManager,
             IRepository<File, Guid> fileRepository,
-            INotificationSender notificationSender
+            INotificationSender notificationSender,
+            ITargetManager targetManager
             )
         {
             this.taskRepository = taskRepository;
@@ -59,6 +62,7 @@ namespace PMVOnline.Tasks
             this.departmentManager = departmentManager;
             this.fileRepository = fileRepository;
             this.notificationSender = notificationSender;
+            this.targetManager = targetManager;
         }
 
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
@@ -135,67 +139,20 @@ namespace PMVOnline.Tasks
             return true;
         }
 
-        public async Task<UserDto[]> GetAllMember(Target target)
+        public async Task<UserDto[]> GetAllMember(int target)
         {
-            string dep = DepartmentName.Director;
-            if (target == Target.Other)
-            {
-                var users = (await departmentManager.GetAllUserAsync()).Select(d => d.User).ToArray();
-                return ObjectMapper.Map<AppUser[], UserDto[]>(users);
-            }
-
-            switch (target)
-            {
-                case Target.BuyCommodity:
-                    dep = DepartmentName.Buy;
-                    break;
-                case Target.BuyOther:
-                    dep = DepartmentName.Director;
-                    break;
-                case Target.Make:
-                case Target.Storage:
-                    dep = DepartmentName.Stocker;
-                    break;
-                case Target.Payment:
-                    dep = DepartmentName.Accountant;
-                    break;
-
-            }
-
-            var users2 = (await departmentManager.GetAllUserAsync(dep)).Select(d => d.User).ToArray();
-            return ObjectMapper.Map<AppUser[], UserDto[]>(users2);
+            var deps = await targetManager.GetDepartmentsByTargetAsync(target); 
+            var users = (await departmentManager.GetAllUserInDepartmentAsync(deps.Select(d => d.Id).ToArray())).Where(d=>!d.IsLeader).Select(d=>d.User).ToArray(); 
+            return ObjectMapper.Map<AppUser[], UserDto[]>(users);
         }
 
 
 
-        public async Task<UserDto> GetAssignee(Target target)
+        public async Task<UserDto> GetAssignee(int target)
         {
-            string dep = DepartmentName.Director;
-            if (target == Target.Other)
-            {
-                var users = (await departmentManager.GetAllUserAsync()).Select(d => d.UserId).ToArray();
-                return await GetUserForTask(users);
-            }
-
-            switch (target)
-            {
-                case Target.BuyCommodity:
-                    dep = DepartmentName.Buy;
-                    break;
-                case Target.BuyOther:
-                    dep = DepartmentName.Director;
-                    break;
-                case Target.Make:
-                case Target.Storage:
-                    dep = DepartmentName.Stocker;
-                    break;
-                case Target.Payment:
-                    dep = DepartmentName.Accountant;
-                    break;
-
-            }
-            var users2 = (await departmentManager.GetAllUserAsync(dep));
-            return await GetUserForTask(users2.Select(c => c.UserId).ToArray());
+            var deps = await targetManager.GetDepartmentsByTargetAsync(target);
+            var users = (await departmentManager.GetAllUserInDepartmentAsync(deps.Select(d => d.Id).ToArray())).Where(d => !d.IsLeader).Select(d => d.User).ToArray();
+            return await GetUserForTask(users.Select(c => c.Id).ToArray());
         }
 
 
@@ -360,7 +317,7 @@ namespace PMVOnline.Tasks
 
             if (departmentLeaders.Length > 0)
             {
-                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.UserId).ToArray();
+                var usersInDeparment = (await departmentManager.GetAllUserInDepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.UserId).ToArray();
                 var departmentTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                     .Where(d =>
                         usersInDeparment.Contains(d.AssigneeId) ||
@@ -474,7 +431,7 @@ namespace PMVOnline.Tasks
 
             if (departmentLeaders.Length > 0)
             {
-                var usersInDeparment = (await departmentManager.GetAllUserIndepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.User).ToArray();
+                var usersInDeparment = (await departmentManager.GetAllUserInDepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.User).ToArray();
                 return ObjectMapper.Map<AppUser[], SimpleUserDto[]>(usersInDeparment);
             }
 

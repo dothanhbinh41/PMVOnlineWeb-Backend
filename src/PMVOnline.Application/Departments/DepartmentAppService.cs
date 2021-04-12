@@ -26,6 +26,18 @@ namespace PMVOnline.Departments
             return departmentManager.AddUserToDepartmentAsync(ObjectMapper.Map<CreateDepartmentUserDto, DepartmentUser>(request));
         }
 
+        public async Task<DepartmentDto> CreateTargetsAsync(NameDepartmentDto request)
+        {
+            var dep = await departmentManager.CreateDepartmentAsync(new Department { Name = request.Name });
+            return ObjectMapper.Map<Department, DepartmentDto>(dep);
+        }
+
+        public async Task<bool> DeleteTargetsAsync(int id)
+        {
+            await departmentManager.DeleteDepartmentAsync(id);
+            return true;
+        }
+
         public Task<bool> DeleteUserToDepartmentAsync(DeleteDepartmentUserDto request)
         {
             return departmentManager.DeleteUserToDepartmentAsync(ObjectMapper.Map<DeleteDepartmentUserDto, DepartmentUser>(request));
@@ -35,6 +47,7 @@ namespace PMVOnline.Departments
         {
             return ObjectMapper.Map<Department[], DepartmentDto[]>((await departmentManager.GetAllDepartmentAsync()));
         }
+
 
         public async Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId)
         {
@@ -54,6 +67,12 @@ namespace PMVOnline.Departments
         public async Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id)
         {
             return ObjectMapper.Map<DepartmentUser[], DepartmentUserDto[]>(await departmentManager.GetUserDepartmentsAsync(id));
+        }
+
+        public async Task<DepartmentDto> UpdateTargetsAsync(int id, NameDepartmentDto request)
+        {
+            var dep = await departmentManager.UpdateDepartmentAsync(new Department(id) { Name = request.Name});
+            return ObjectMapper.Map<Department, DepartmentDto>(dep);
         }
 
         public Task<bool> UpdateUserToDepartmentAsync(UpdateDepartmentUserDto request)

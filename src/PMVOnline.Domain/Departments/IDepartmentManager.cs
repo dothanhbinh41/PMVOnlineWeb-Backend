@@ -10,17 +10,22 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentManager
     {
-        Task<bool> AddUserToDepartmentAsync(DepartmentUser request);  
-        Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request);  
+
+        Task<Department> CreateDepartmentAsync(Department request);
+        Task<Department> UpdateDepartmentAsync(Department request);
+        Task DeleteDepartmentAsync(int request);
+
+        Task<bool> AddUserToDepartmentAsync(DepartmentUser request);
+        Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request);
         Task<bool> UpdateUserToDepartmentAsync(DepartmentUser request);
         Task<bool> DeleteUserToDepartmentAsync(DepartmentUser request);
         Task<Department[]> GetAllDepartmentAsync();
         Task<DepartmentUser[]> GetAllUserAsync(int departmentId);
-        Task<DepartmentUser[]> GetAllUserIndepartmentAsync(int[] departmentId);
+        Task<DepartmentUser[]> GetAllUserInDepartmentAsync(int[] departmentId);
         Task<DepartmentUser[]> GetAllUserAsync(string department);
         Task<DepartmentUser[]> GetAllUserAsync();
         Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId);
-        Department GetDepartmentByName(string name);
+        Department GetDepartmentByName(string name); 
     }
 
     public class DepartmentManager : IDomainService, IDepartmentManager
@@ -48,7 +53,7 @@ namespace PMVOnline.Departments
         }
 
         public async Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request)
-        { 
+        {
             await departmentUserRepository.InsertManyAsync(request);
             return true;
         }
@@ -83,12 +88,12 @@ namespace PMVOnline.Departments
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).ToArray();
         }
 
-        public async Task<DepartmentUser[]> GetAllUserIndepartmentAsync(int[] departmentId)
+        public async Task<DepartmentUser[]> GetAllUserInDepartmentAsync(int[] departmentId)
         {
             return (await departmentUserRepository.WithDetailsAsync(d => d.User, c => c.Department)).Where(c => departmentId.Contains(c.DepartmentId)).ToArray();
         }
 
-        public  Department GetDepartmentByName(string name)
+        public Department GetDepartmentByName(string name)
         {
             return departmentRepository.FirstOrDefault(d => d.Name == name);
         }
@@ -107,6 +112,23 @@ namespace PMVOnline.Departments
                 await departmentUserRepository.UpdateAsync(us);
             }
             return true;
-        } 
+        }
+
+        public Task<Department> CreateDepartmentAsync(Department request)
+        {
+            return departmentRepository.InsertAsync(request);
+        }
+
+        public async Task<Department> UpdateDepartmentAsync(Department request)
+        {
+            var dep = await departmentRepository.GetAsync(request.Id);
+            dep.Name = request.Name;
+            return await departmentRepository.UpdateAsync(dep);
+        }
+
+        public Task DeleteDepartmentAsync(int request)
+        {
+            return departmentRepository.DeleteAsync(request);
+        }
     }
 }

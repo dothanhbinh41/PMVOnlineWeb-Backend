@@ -1,4 +1,5 @@
-﻿using PMVOnline.Users;
+﻿using PMVOnline.Targets;
+using PMVOnline.Users;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,7 +18,7 @@ namespace PMVOnline.Tasks
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public Priority Priority { get; set; }
-        public Target Target { get; set; }
+        public int TargetId { get; set; }
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; }
@@ -29,6 +30,9 @@ namespace PMVOnline.Tasks
 
         [ForeignKey(nameof(AssigneeId))]
         public virtual AppUser Assignee { get; set; }
+
+        [ForeignKey(nameof(TargetId))]
+        public virtual Target Target { get; set; }
 
         [ForeignKey(nameof(CreatorId))]
         public virtual AppUser Creator { get; set; }

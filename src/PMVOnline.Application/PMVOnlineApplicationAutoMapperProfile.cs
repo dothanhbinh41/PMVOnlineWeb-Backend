@@ -3,6 +3,7 @@ using PMVOnline.Departments;
 using PMVOnline.Files;
 using PMVOnline.Guides;
 using PMVOnline.Profiles;
+using PMVOnline.Targets;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
 using Volo.Abp.Identity;
@@ -46,6 +47,7 @@ namespace PMVOnline
             CreateMap<UpdateDepartmentUserDto, DepartmentUser>();
             CreateMap<CreateDepartmentUserDto, DepartmentUser>();
             CreateMap<DeleteDepartmentUserDto, DepartmentUser>();
+            CreateMap<Target, TargetDto>();  
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
                 .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))

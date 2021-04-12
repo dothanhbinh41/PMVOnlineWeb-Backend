@@ -2,6 +2,7 @@
 using PMVOnline.Departments;
 using PMVOnline.Files;
 using PMVOnline.Guides;
+using PMVOnline.Targets;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
 using Volo.Abp;
@@ -108,6 +109,21 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureByConvention();
                 b.ConfigureAuditedAggregateRoot();
             });
+
+            builder.Entity<Target>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "Targets");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
+            });
+
+            builder.Entity<DepartmentTarget>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "DepartmentTargets");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
+            });
+
 
 
             builder.Entity<AppUser>(b =>
