@@ -83,6 +83,7 @@ namespace PMVOnline.Tasks
         public string Content { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
+        public DateTime CreationTime { get; set; }
         public Priority Priority { get; set; }
         public int TargetId { get; set; }
         public Status Status { get; set; }
@@ -114,6 +115,7 @@ namespace PMVOnline.Tasks
         public string Title { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? CompletedDate { get; set; }
+        public DateTime CreationTime { get; set; }
         public Priority Priority { get; set; }
         public int TargetId { get; set; }
         public TargetDto Target { get; set; }
@@ -142,7 +144,8 @@ namespace PMVOnline.Tasks
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; }
-        public Guid CreatorId { get; set; } 
+        public Guid CreatorId { get; set; }
+        public DateTime CreationTime { get; set; }
         public virtual SimpleUserDto Assignee { get; set; }
     }
 
