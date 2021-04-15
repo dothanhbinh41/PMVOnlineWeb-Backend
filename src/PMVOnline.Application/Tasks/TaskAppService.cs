@@ -350,7 +350,7 @@ namespace PMVOnline.Tasks
 
         public async Task<FullTaskDto> GetTask(long id)
         {
-            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee)).FirstOrDefault(d => d.Id == id);
+            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee, d=>d.Target)).FirstOrDefault(d => d.Id == id);
             if (task == null)
             {
                 return null;
