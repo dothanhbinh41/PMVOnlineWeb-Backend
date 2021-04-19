@@ -25,6 +25,7 @@ namespace PMVOnline.EntityFrameworkCore
     [ConnectionStringName("Default")]
     public class PMVOnlineDbContext : AbpDbContext<PMVOnlineDbContext>
     {
+        public DbSet<TaskRating> TaskRatings { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<DepartmentTarget> DepartmentTargets { get; set; }

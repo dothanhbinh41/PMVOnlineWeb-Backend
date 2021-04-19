@@ -37,6 +37,7 @@ namespace PMVOnline.Tasks
         readonly IRepository<File, Guid> fileRepository;
         readonly INotificationSender notificationSender;
         readonly ITargetManager targetManager;
+        readonly IRepository<TaskRating> taskRatings;
 
         public TaskAppService(
             IRepository<Task, long> taskRepository,
@@ -49,7 +50,8 @@ namespace PMVOnline.Tasks
             IDepartmentManager departmentManager,
             IRepository<File, Guid> fileRepository,
             INotificationSender notificationSender,
-            ITargetManager targetManager
+            ITargetManager targetManager,
+            IRepository<TaskRating> taskRatings
             )
         {
             this.taskRepository = taskRepository;
@@ -63,6 +65,7 @@ namespace PMVOnline.Tasks
             this.fileRepository = fileRepository;
             this.notificationSender = notificationSender;
             this.targetManager = targetManager;
+            this.taskRatings = taskRatings;
         }
 
         public async Task<TaskDto> CreateTask(CreateTaskRequestDto request)
@@ -72,6 +75,16 @@ namespace PMVOnline.Tasks
             task.DueDate = task.DueDate.ToUniversalTime();
             var assignee = await appUserRepository.GetAsync(request.AssigneeId);
             task.LastModifierId = uid;
+
+            var departments = await targetManager.GetDepartmentsByTargetAsync(request.TargetId);
+
+            var users = await departmentManager.GetAllUserInDepartmentAsync(departments.Select(d => d.Id).ToArray());
+            var leader = users.FirstOrDefault(d => d.IsLeader == true);
+            if (leader == null)
+            {
+                throw new UserFriendlyException("Ban khong phai truong phong de rating");
+            }
+            task.LeaderId = leader.UserId;
             var result = await taskRepository.InsertAsync(task, true);
 
             if (result == null)
@@ -141,8 +154,8 @@ namespace PMVOnline.Tasks
 
         public async Task<UserDto[]> GetAllMember(int target)
         {
-            var deps = await targetManager.GetDepartmentsByTargetAsync(target); 
-            var users = (await departmentManager.GetAllUserInDepartmentAsync(deps.Select(d => d.Id).ToArray())).Where(d=>!d.IsLeader).Select(d=>d.User).ToArray(); 
+            var deps = await targetManager.GetDepartmentsByTargetAsync(target);
+            var users = (await departmentManager.GetAllUserInDepartmentAsync(deps.Select(d => d.Id).ToArray())).Where(d => !d.IsLeader).Select(d => d.User).ToArray();
             return ObjectMapper.Map<AppUser[], UserDto[]>(users);
         }
 
@@ -276,15 +289,15 @@ namespace PMVOnline.Tasks
             if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
                 var allTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
-                    .Where(d => d.Status != Status.Completed && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || d.CreatorId == uid || d.AssigneeId == uid))
+                    .Where(d => d.Status < Status.Rated && (d.Status == Status.Requested || d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || d.CreatorId == uid || d.AssigneeId == uid))
                     .OrderByDescending(d => d.LastModificationTime)
                     .ToArray();
                 return ObjectMapper.Map<Task[], MyTaskDto[]>(allTasks);
             }
 
             var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
-                   .Where(d => d.Status != Status.Completed &&
-                   (d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || (d.CreatorId == uid && d.Status != Status.Pending) || d.AssigneeId == uid))
+                   .Where(d => d.Status != Status.Done &&
+                   (d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || (d.CreatorId == uid && d.Status != Status.Pending && d.Status != Status.Incompleted && d.Status != Status.LeaderRated) || (d.AssigneeId == uid && d.Status != Status.Completed && d.Status != Status.Incompleted && d.Status != Status.LeaderRated && d.Status != Status.Rated) || (d.LeaderId == uid && (d.Status == Status.Completed || d.Status == Status.Rated))))
                    .OrderByDescending(d => d.LastModificationTime)
                    .ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
@@ -350,7 +363,7 @@ namespace PMVOnline.Tasks
 
         public async Task<FullTaskDto> GetTask(long id)
         {
-            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee, d=>d.Target)).FirstOrDefault(d => d.Id == id);
+            var task = (await taskRepository.WithDetailsAsync(d => d.Assignee, d => d.Target)).FirstOrDefault(d => d.Id == id);
             if (task == null)
             {
                 return null;
@@ -424,14 +437,14 @@ namespace PMVOnline.Tasks
 
             if (departments.Any(deparment => deparment?.Department?.Name == DepartmentName.Director))
             {
-                return ObjectMapper.Map<AppUser[], SimpleUserDto[]>((await departmentManager.GetAllUserAsync()).ToArray().Select(d => d.User).ToArray());
+                return ObjectMapper.Map<AppUser[], SimpleUserDto[]>((await departmentManager.GetAllUserAsync()).ToArray().Select(d => d.User).Distinct().ToArray());
             }
 
             var departmentLeaders = departments.Where(d => d.IsLeader).ToArray();
 
             if (departmentLeaders.Length > 0)
             {
-                var usersInDeparment = (await departmentManager.GetAllUserInDepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.User).ToArray();
+                var usersInDeparment = (await departmentManager.GetAllUserInDepartmentAsync(departmentLeaders.Select(c => c.DepartmentId).ToArray())).Select(d => d.User).Distinct().ToArray();
                 return ObjectMapper.Map<AppUser[], SimpleUserDto[]>(usersInDeparment);
             }
 
@@ -512,6 +525,27 @@ namespace PMVOnline.Tasks
 
 
             return ObjectMapper.Map<Task, TaskDto>(result);
+        }
+
+        public async Task<bool> RateTaskAsync(long taskId, int rating, string note)
+        {
+            var task = await taskRepository.GetAsync(taskId);
+            var assignee = task.CreatorId;
+            if (assignee == CurrentUser.GetId())
+            {
+                await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = rating, Note = note, IsLeader = false });
+                return true;
+            }
+            var departments = await targetManager.GetDepartmentsByTargetAsync(task.TargetId);
+
+            var users = await departmentManager.GetAllUserInDepartmentAsync(departments.Select(d => d.Id).ToArray());
+            var leader = users.FirstOrDefault(d => d.UserId == CurrentUser.GetId() && d.IsLeader == true);
+            if (leader == null)
+            {
+                throw new UserFriendlyException("Ban khong phai truong phong de rating");
+            }
+            await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = rating, Note = note, IsLeader = true });
+            return true;
         }
     }
 }

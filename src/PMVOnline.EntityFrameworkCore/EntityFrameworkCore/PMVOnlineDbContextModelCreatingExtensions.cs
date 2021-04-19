@@ -124,7 +124,12 @@ namespace PMVOnline.EntityFrameworkCore
                 b.ConfigureAuditedAggregateRoot();
             });
 
-
+            builder.Entity<TaskRating>(b =>
+            {
+                b.ToTable(PMVOnlineConsts.DbTablePrefix + "TaskRatings");
+                b.ConfigureByConvention();
+                b.ConfigureAuditedAggregateRoot();
+            });
 
             builder.Entity<AppUser>(b =>
             {

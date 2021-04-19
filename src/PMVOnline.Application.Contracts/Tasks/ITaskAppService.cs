@@ -28,5 +28,7 @@ namespace PMVOnline.Tasks
         Task<TaskCommentDto[]> GetTaskComments(long id);
         Task<FileDto[]> GetTaskFiles(long id);
         Task<SimpleUserDto[]> GetUsersInMyTasks();
+
+        Task<bool> RateTaskAsync(long taskId, int rating, string note);
     }
 }
