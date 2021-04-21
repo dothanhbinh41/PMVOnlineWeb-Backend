@@ -10,11 +10,9 @@ namespace PMVOnline.Departments
 {
     public interface IDepartmentAppService
     { 
-        Task<DepartmentDto> CreateTargetsAsync(NameDepartmentDto request);
-        Task<DepartmentDto> UpdateTargetsAsync(int id, NameDepartmentDto request);
-        Task<bool> DeleteTargetsAsync(int id);
-
-
+        Task<DepartmentDto> CreateDepartmentAsync(NameDepartmentDto request);
+        Task<DepartmentDto> UpdateDepartmentAsync(int id, NameDepartmentDto request);
+        Task<bool> DeleteDepartmentAsync(int id); 
         Task<bool> AddUserToDepartmentAsync(CreateDepartmentUserDto request);
         Task<bool> UpdateUserToDepartmentAsync(UpdateDepartmentUserDto request);
         Task<bool> DeleteUserToDepartmentAsync(DeleteDepartmentUserDto request);
