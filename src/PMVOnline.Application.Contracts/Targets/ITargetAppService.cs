@@ -9,14 +9,12 @@ namespace PMVOnline.Targets
 {
     public interface ITargetAppService
     {
-        Task<TargetDto[]> GetAllTargetsAsync();
-        Task<TargetDto> CreateTargetsAsync(NameTargetDto request);
-        Task<TargetDto> UpdateTargetsAsync(int id, NameTargetDto request);
+        Task<TargetDto[]> GetAllTargetsAsync(); 
+        Task<TargetDto> AddTargetsAsync(AddTargetDto request);
+        Task<TargetDto> UpdateTargetsAsync(int id, AddTargetDto request);
         Task<bool> DeleteTargetsAsync(int id);
-
-
-        Task<DepartmentDto[]> GetDepartmentsByTargetAsync(int targetId);
-        Task<DepartmentDto[]> AddOrEditDepartmentsToTargetAsync(int targetId, AddOrEditDepartmentsToTargetDto request);
+         
+        Task<DepartmentDto[]> GetDepartmentsByTargetAsync(int targetId); 
     }
 
     public class TargetDto : NameTargetDto, IEntityDto<int>
@@ -31,6 +29,12 @@ namespace PMVOnline.Targets
 
     public class AddOrEditDepartmentsToTargetDto
     {
-        public int[] Departments { set; get; }
+        public int DepartmentId { set; get; }
+    }
+
+    public class AddTargetDto: NameTargetDto
+    {
+
+        public int DepartmentId { set; get; }
     }
 }
