@@ -18,14 +18,16 @@ namespace PMVOnline.Departments
         Task<bool> AddUserToDepartmentAsync(DepartmentUser request);
         Task<bool> AddUserToDeparmentAsync(DepartmentUser[] request);
         Task<bool> UpdateUserToDepartmentAsync(DepartmentUser request);
+        Task<bool> UpdateUserToDepartmentsAsync(Guid uid, DepartmentUser[] request);
         Task<bool> DeleteUserToDepartmentAsync(DepartmentUser request);
+        Task<bool> DeleteUserToDepartmentsAsync(DepartmentUser[] request);
         Task<Department[]> GetAllDepartmentAsync();
         Task<DepartmentUser[]> GetAllUserAsync(int departmentId);
         Task<DepartmentUser[]> GetAllUserInDepartmentAsync(int[] departmentId);
         Task<DepartmentUser[]> GetAllUserAsync(string department);
         Task<DepartmentUser[]> GetAllUserAsync();
         Task<DepartmentUser[]> GetUserDepartmentsAsync(Guid userId);
-        Department GetDepartmentByName(string name); 
+        Department GetDepartmentByName(string name);
     }
 
     public class DepartmentManager : IDomainService, IDepartmentManager
@@ -129,6 +131,31 @@ namespace PMVOnline.Departments
         public Task DeleteDepartmentAsync(int request)
         {
             return departmentRepository.DeleteAsync(request);
+        }
+
+        public async Task<bool> DeleteUserToDepartmentsAsync(DepartmentUser[] request)
+        {
+            var us = departmentUserRepository.Where(d => request.Any(c => c.UserId == d.UserId && c.DepartmentId == d.DepartmentId));
+            if (us != null)
+            {
+                await departmentUserRepository.DeleteManyAsync(us);
+            }
+            return true;
+        }
+
+        public async Task<bool> UpdateUserToDepartmentsAsync(Guid uid, DepartmentUser[] request)
+        {
+            var deps = (await departmentUserRepository.WithDetailsAsync(d => d.Department)).Where(d => d.UserId == uid).ToArray();
+            var removed = deps.Where(d => !request.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
+            if (removed.Length > 0)
+                await departmentUserRepository.DeleteManyAsync(removed);
+            var added = request.Where(d => !deps.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
+            if (added.Length > 0)
+                await departmentUserRepository.InsertManyAsync(added);
+            var updated = deps.Where(d => request.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
+            if (updated.Length > 0)
+                await departmentUserRepository.UpdateManyAsync(updated);
+            return true;
         }
     }
 }

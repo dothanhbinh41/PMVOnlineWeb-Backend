@@ -10,4 +10,10 @@ namespace PMVOnline.Users
     {
         public CreateDepartmentNameUserDto[] Departments { get; set; }
     }
+
+    public class UserDepartmentUpdateDto : IdentityUserUpdateDto
+    {
+        public CreateDepartmentNameUserDto[] Departments { get; set; }
+    }
+    
 }

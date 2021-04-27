@@ -527,13 +527,13 @@ namespace PMVOnline.Tasks
             return ObjectMapper.Map<Task, TaskDto>(result);
         }
 
-        public async Task<bool> RateTaskAsync(long taskId, int rating, string note)
+        public async Task<bool> RateTaskAsync(long taskId, RatingRequestDto request)
         {
             var task = await taskRepository.GetAsync(taskId);
             var assignee = task.CreatorId;
             if (assignee == CurrentUser.GetId())
             {
-                await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = rating, Note = note, IsLeader = false });
+                await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = request.Rating, IsLeader = false });
                 return true;
             }
             var departments = await targetManager.GetDepartmentsByTargetAsync(task.TargetId);
@@ -544,7 +544,7 @@ namespace PMVOnline.Tasks
             {
                 throw new UserFriendlyException("Ban khong phai truong phong de rating");
             }
-            await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = rating, Note = note, IsLeader = true });
+            await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = request.Rating, IsLeader = true });
             return true;
         }
     }

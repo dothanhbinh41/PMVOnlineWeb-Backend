@@ -17,12 +17,13 @@ namespace PMVOnline.Users
     public interface IDepartmentIdentityUserAppService
     {
         Task<IdentityUserDto> CreateNewAsync(UserDepartmentCreateDto input);
+        Task<IdentityUserDto> UpdateAsync(Guid id, UserDepartmentUpdateDto input);
     }
 
     public class DepartmentIdentityUserAppService : ApplicationService, IDepartmentIdentityUserAppService
     {
         readonly IDepartmentManager departmentManager;
-        private readonly IIdentityUserAppService identityUserApp;
+        readonly IIdentityUserAppService identityUserApp;
 
         public DepartmentIdentityUserAppService(IDepartmentManager departmentManager, IIdentityUserAppService identityUserApp)
         {
@@ -31,10 +32,11 @@ namespace PMVOnline.Users
         }
         public async Task<IdentityUserDto> CreateNewAsync(UserDepartmentCreateDto input)
         {
-            var result = await identityUserApp.CreateAsync(input); 
+            var result = await identityUserApp.CreateAsync(input);
             await CreateDepartments(input.Departments, result.Id);
             return result;
         }
+
 
         async Task CreateDepartments(CreateDepartmentNameUserDto[] departments, Guid uid)
         {
@@ -47,6 +49,26 @@ namespace PMVOnline.Users
             await departmentManager.AddUserToDeparmentAsync(dep.ToArray());
         }
 
+        async Task UpdateDepartments(CreateDepartmentNameUserDto[] departments, Guid uid)
+        {
+            if (departments == null || departments.Length == 0)
+            {
+                var deps = await departmentManager.GetUserDepartmentsAsync(uid);
+                await departmentManager.DeleteUserToDepartmentsAsync(deps);
+                return;
+            }
+
+            var userDeps = await departmentManager.GetUserDepartmentsAsync(uid); 
+            var dep = departments.Select(d => new DepartmentUser { Department = departmentManager.GetDepartmentByName(d.Name), IsLeader = d.IsLeader, UserId = uid });
+            await departmentManager.UpdateUserToDepartmentsAsync(uid, dep.ToArray());
+        }
+
+        public async Task<IdentityUserDto> UpdateAsync(Guid id, UserDepartmentUpdateDto input)
+        {
+            var result = await identityUserApp.UpdateAsync(id, input);
+            await UpdateDepartments(input.Departments, result.Id);
+            return result;
+        }
     }
 
     [Dependency(ReplaceServices = true)]

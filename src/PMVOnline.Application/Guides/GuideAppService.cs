@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Settings;
+using Volo.Abp.Users;
 
 namespace PMVOnline.Guides
 {
@@ -20,9 +21,10 @@ namespace PMVOnline.Guides
         }
 
 
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<bool> SetGuideAsync(GuideDto guide)
         {
+            var uid = CurrentUser.GetId();
             var exist = await repository.GetCountAsync();
             if (exist > 0)
             {
