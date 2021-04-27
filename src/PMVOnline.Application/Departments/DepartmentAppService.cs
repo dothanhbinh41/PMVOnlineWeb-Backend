@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
@@ -43,9 +44,10 @@ namespace PMVOnline.Departments
             return departmentManager.DeleteUserToDepartmentAsync(ObjectMapper.Map<DeleteDepartmentUserDto, DepartmentUser>(request));
         }
 
-        public async Task<DepartmentDto[]> GetAllDepartmentsAsync()
+        public async Task<PagedResultDto<DepartmentDto>> GetAllDepartmentsAsync()
         {
-            return ObjectMapper.Map<Department[], DepartmentDto[]>((await departmentManager.GetAllDepartmentAsync()));
+            var deps = await departmentManager.GetAllDepartmentAsync();
+            return new PagedResultDto<DepartmentDto>(deps.Length, ObjectMapper.Map<Department[], DepartmentDto[]>(deps));
         }
 
 
@@ -71,7 +73,7 @@ namespace PMVOnline.Departments
 
         public async Task<DepartmentDto> UpdateDepartmentAsync(int id, NameDepartmentDto request)
         {
-            var dep = await departmentManager.UpdateDepartmentAsync(new Department(id) { Name = request.Name});
+            var dep = await departmentManager.UpdateDepartmentAsync(new Department(id) { Name = request.Name });
             return ObjectMapper.Map<Department, DepartmentDto>(dep);
         }
 

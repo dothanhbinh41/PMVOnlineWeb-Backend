@@ -9,7 +9,7 @@ namespace PMVOnline.Targets
 {
     public interface ITargetAppService
     {
-        Task<TargetDto[]> GetAllTargetsAsync(); 
+        Task<PagedResultDto<TargetDto>> GetAllTargetsAsync(); 
         Task<TargetDto> AddTargetsAsync(AddTargetDto request);
         Task<TargetDto> UpdateTargetsAsync(int id, AddTargetDto request);
         Task<bool> DeleteTargetsAsync(int id);

@@ -13,7 +13,7 @@ namespace PMVOnline.Users
 
     public class UserDepartmentUpdateDto : IdentityUserUpdateDto
     {
-        public CreateDepartmentNameUserDto[] Departments { get; set; }
+        public UpdateDepartmentUserDto[] Departments { get; set; }
     }
     
 }

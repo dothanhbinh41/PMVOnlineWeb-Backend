@@ -49,7 +49,7 @@ namespace PMVOnline.Users
             await departmentManager.AddUserToDeparmentAsync(dep.ToArray());
         }
 
-        async Task UpdateDepartments(CreateDepartmentNameUserDto[] departments, Guid uid)
+        async Task UpdateDepartments(UpdateDepartmentUserDto[] departments, Guid uid)
         {
             if (departments == null || departments.Length == 0)
             {
@@ -57,16 +57,15 @@ namespace PMVOnline.Users
                 await departmentManager.DeleteUserToDepartmentsAsync(deps);
                 return;
             }
-
-            var userDeps = await departmentManager.GetUserDepartmentsAsync(uid); 
-            var dep = departments.Select(d => new DepartmentUser { Department = departmentManager.GetDepartmentByName(d.Name), IsLeader = d.IsLeader, UserId = uid });
+             
+            var dep = departments.Select(d => new DepartmentUser { DepartmentId = d.DepartmentId, IsLeader = d.IsLeader, UserId = uid });
             await departmentManager.UpdateUserToDepartmentsAsync(uid, dep.ToArray());
         }
 
         public async Task<IdentityUserDto> UpdateAsync(Guid id, UserDepartmentUpdateDto input)
         {
             var result = await identityUserApp.UpdateAsync(id, input);
-            await UpdateDepartments(input.Departments, result.Id);
+            await UpdateDepartments(input.Departments, id);
             return result;
         }
     }

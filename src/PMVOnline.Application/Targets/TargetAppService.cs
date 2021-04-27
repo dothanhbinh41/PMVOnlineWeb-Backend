@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 
@@ -40,10 +41,10 @@ namespace PMVOnline.Targets
             return true;
         }
 
-        public async Task<TargetDto[]> GetAllTargetsAsync()
+        public async Task<PagedResultDto<TargetDto>> GetAllTargetsAsync()
         {
             var targets = await targetRepostiory.GetListAsync();
-            return ObjectMapper.Map<List<Target>, TargetDto[]>(targets);
+            return new PagedResultDto<TargetDto>(targets.Count, ObjectMapper.Map<List<Target>, TargetDto[]>(targets));
         }
 
         public async Task<DepartmentDto[]> GetDepartmentsByTargetAsync(int targetId)
