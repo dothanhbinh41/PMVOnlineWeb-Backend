@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.Autofac" Version="4.2.1" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="4.3.0" />
     <ProjectReference Include="..\PMVOnline.Application.Contracts\PMVOnline.Application.Contracts.csproj" />
     <ProjectReference Include="..\PMVOnline.EntityFrameworkCore.DbMigrations\PMVOnline.EntityFrameworkCore.DbMigrations.csproj" />
   </ItemGroup>
