@@ -18,6 +18,7 @@ namespace PMVOnline.Users
     {
         Task<IdentityUserDto> CreateNewAsync(UserDepartmentCreateDto input);
         Task<IdentityUserDto> UpdateAsync(Guid id, UserDepartmentUpdateDto input);
+        Task<bool> UpdateDepartments(Guid id, UserDepartmentUpdateDto input);
     }
 
     public class DepartmentIdentityUserAppService : ApplicationService, IDepartmentIdentityUserAppService
@@ -48,25 +49,26 @@ namespace PMVOnline.Users
             var dep = departments.Select(d => new DepartmentUser { Department = departmentManager.GetDepartmentByName(d.Name), IsLeader = d.IsLeader, UserId = uid });
             await departmentManager.AddUserToDeparmentAsync(dep.ToArray());
         }
-
-        async Task UpdateDepartments(UpdateDepartmentUserDto[] departments, Guid uid)
-        {
-            if (departments == null || departments.Length == 0)
-            {
-                var deps = await departmentManager.GetUserDepartmentsAsync(uid);
-                await departmentManager.DeleteUserToDepartmentsAsync(deps);
-                return;
-            }
-             
-            var dep = departments.Select(d => new DepartmentUser { DepartmentId = d.DepartmentId, IsLeader = d.IsLeader, UserId = uid });
-            await departmentManager.UpdateUserToDepartmentsAsync(uid, dep.ToArray());
-        }
+         
 
         public async Task<IdentityUserDto> UpdateAsync(Guid id, UserDepartmentUpdateDto input)
         {
-            var result = await identityUserApp.UpdateAsync(id, input);
-            await UpdateDepartments(input.Departments, id);
+            var result = await identityUserApp.UpdateAsync(id, input); 
             return result;
+        }
+
+        public async Task<bool> UpdateDepartments(Guid id, UserDepartmentUpdateDto input)
+        {
+            if (input.Departments == null || input.Departments.Length == 0)
+            {
+                var deps = await departmentManager.GetUserDepartmentsAsync(id);
+                await departmentManager.DeleteUserToDepartmentsAsync(deps);
+                return true;
+            }
+
+            var dep = input.Departments.Select(d => new DepartmentUser { DepartmentId = d.DepartmentId, IsLeader = d.IsLeader, UserId = id });
+            await departmentManager.UpdateUserToDepartmentsAsync(id, dep.ToArray());
+            return true;
         }
     }
 

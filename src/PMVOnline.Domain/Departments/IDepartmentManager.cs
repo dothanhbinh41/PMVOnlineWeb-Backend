@@ -145,7 +145,7 @@ namespace PMVOnline.Departments
 
         public async Task<bool> UpdateUserToDepartmentsAsync(Guid uid, DepartmentUser[] request)
         {
-            var deps = departmentUserRepository.Where(d => d.UserId == uid)?.ToList() ?? new List<DepartmentUser>();
+            var deps = departmentUserRepository.Where(d => d.UserId == uid).ToList() ?? new List<DepartmentUser>();
 
             try
             {
