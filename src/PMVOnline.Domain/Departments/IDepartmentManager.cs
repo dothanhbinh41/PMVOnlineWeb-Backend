@@ -145,16 +145,36 @@ namespace PMVOnline.Departments
 
         public async Task<bool> UpdateUserToDepartmentsAsync(Guid uid, DepartmentUser[] request)
         {
-            var deps = (await departmentUserRepository.WithDetailsAsync(d => d.Department)).Where(d => d.UserId == uid).ToArray();
-            var removed = deps.Where(d => !request.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
-            if (removed.Length > 0)
-                await departmentUserRepository.DeleteManyAsync(removed);
-            var added = request.Where(d => !deps.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
-            if (added.Length > 0)
-                await departmentUserRepository.InsertManyAsync(added);
-            var updated = deps.Where(d => request.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
-            if (updated.Length > 0)
-                await departmentUserRepository.UpdateManyAsync(updated);
+            var deps = departmentUserRepository.Where(d => d.UserId == uid).ToList() ?? new List<DepartmentUser>();
+
+            try
+            {
+                var removed = deps.Where(d => !request.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
+                if (removed.Length > 0)
+                    await departmentUserRepository.DeleteManyAsync(removed.Select(d => d.Id));
+                var added = request.Where(d => !deps.Any(c => c.DepartmentId == d.DepartmentId)).ToArray();
+                if (added.Length > 0)
+                {
+                    await departmentUserRepository.InsertManyAsync(added);
+                }
+
+                var updated = deps?
+                    .Where(d => request.Any(c => c.DepartmentId == d.DepartmentId))?
+                    .ToArray();
+                for (int i = 0; i < updated.Length; i++)
+                {
+                    var u = updated[i];
+                    u.IsLeader = request.FirstOrDefault(d => d.DepartmentId == u.DepartmentId)?.IsLeader ?? false;
+                }
+                if (updated?.Length > 0)
+                {
+                    await departmentUserRepository.UpdateManyAsync(updated);
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
             return true;
         }
     }

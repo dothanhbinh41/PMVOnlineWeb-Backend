@@ -16,7 +16,7 @@ namespace PMVOnline.Departments
         Task<bool> AddUserToDepartmentAsync(CreateDepartmentUserDto request);
         Task<bool> UpdateUserToDepartmentAsync(UpdateDepartmentUserDto request);
         Task<bool> DeleteUserToDepartmentAsync(DeleteDepartmentUserDto request);
-        Task<DepartmentDto[]> GetAllDepartmentsAsync();
+        Task<PagedResultDto<DepartmentDto>> GetAllDepartmentsAsync();
         Task<DepartmentUserDto[]> GetDepartmentUsersByIdAsync(int departmentId);
         Task<DepartmentUserDto[]> GetDepartmentUsersByNameAsync(string department);
         Task<DepartmentUserDto[]> GetUserDepartmentsAsync(Guid id);
@@ -48,21 +48,20 @@ namespace PMVOnline.Departments
     }
     public class CreateDepartmentUserDto
     {
-        public int DepartmentId { get; set; }
-        public Guid UserId { get; set; }
+        public int DepartmentId { get; set; } 
         public bool IsLeader { get; set; }
     }
 
     public class UpdateDepartmentUserDto
     {
-        public int DepartmentId { get; set; }
-        public Guid UserId { get; set; }
+        public int DepartmentId { get; set; } 
         public bool IsLeader { get; set; }
     }
 
     public class CreateDepartmentNameUserDto
     {
-        public string Name { get; set; }
+        public int DepartmentId { get; set; }
+        public string Name { get; set; } 
         public bool IsLeader { get; set; }
     }
 }

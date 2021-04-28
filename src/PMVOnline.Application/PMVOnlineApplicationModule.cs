@@ -29,7 +29,7 @@ namespace PMVOnline
             {
                 options.AddMaps<PMVOnlineApplicationModule>();
             });
-            context.Services.AddTransient<IDepartmentIdentityUserAppService, DepartmentIdentityUserAppService>();
+            //context.Services.AddTransient<IDepartmentIdentityUserAppService, DepartmentIdentityUserAppService>();
             //context.Services.Replace(ServiceDescriptor.Transient<IIdentityUserAppService, UserAppService>()
 
         }
