@@ -26,8 +26,16 @@ namespace PMVOnline.Reports
                 .WhereIf(request.StartDate.HasValue, d => d.CreationTime >= request.StartDate.Value)
                 .WhereIf(request.EndDate.HasValue, d => d.CreationTime <= request.EndDate.Value)
                 .PageBy(request).ToList();
-            var report = ObjectMapper.Map<List<Tasks.Task>, List<ReportDto>>(tasks); 
-            return new PagedResultDto<ReportDto>(tasks.Count, ObjectMapper.Map<List<Tasks.Task>, List<ReportDto>>(tasks));
+            try
+            {
+
+                var report = ObjectMapper.Map<List<Tasks.Task>, List<ReportDto>>(tasks);
+                return new PagedResultDto<ReportDto>(tasks.Count, ObjectMapper.Map<List<Tasks.Task>, List<ReportDto>>(tasks));
+            }
+            catch(Exception e)
+            {
+                return null;
+            }
         }
     }
 }

@@ -165,4 +165,12 @@ namespace PMVOnline.Tasks
     {
         public int Rating { get; set; } 
     }
+
+    public class TaskRatingDto
+    {
+        public long TaskId { get; set; }
+        public int Rating { get; set; }
+        public bool IsLeader { get; set; }
+        public string Note { get; set; }
+    }
 }

@@ -1,4 +1,5 @@
-﻿using PMVOnline.Targets;
+﻿using PMVOnline.Files;
+using PMVOnline.Targets;
 using PMVOnline.Tasks;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace PMVOnline.Reports
         Task<PagedResultDto<ReportDto>> GetReportAsync(ReportRequestdto request);
     }
 
-    public class ReportDto
+    public class ReportDto : EntityDto<long>
     {
         public string Title { get; set; }
         public string Content { get; set; }
@@ -25,13 +26,13 @@ namespace PMVOnline.Reports
         public Status Status { get; set; }
         public SimpleUserDto Assignee { get; set; }
         public SimpleUserDto Creator { get; set; }
-        public SimpleUserDto[] TaskFollows { get; set; }
-        public TaskCommentDto[] Comments { get; set; }
+        //public SimpleUserDto[] TaskFollows { get; set; }
+        public TaskCommentDto[] TaskComments { get; set; }
         public TaskDto[] ReferenceTasks { get; set; }
-        public TaskDto[] TaskRatings { get; set; }
-        public TaskDto[] TaskHistory { get; set; } 
-        public TargetDto Target { get; set; } 
-         
+        public TaskRatingDto[] TaskRatings { get; set; }
+        public TaskActionDto[] TaskHistory { get; set; }
+        public TargetDto Target { get; set; }
+        public TaskFileDto[] TaskFiles { get; set; }
     }
 
     public class ReportRequestdto : PagedResultRequestDto

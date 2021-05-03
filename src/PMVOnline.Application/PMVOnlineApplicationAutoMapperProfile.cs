@@ -49,6 +49,7 @@ namespace PMVOnline
             CreateMap<CreateDepartmentUserDto, DepartmentUser>();
             CreateMap<DeleteDepartmentUserDto, DepartmentUser>();
             CreateMap<Target, TargetDto>();  
+            CreateMap<TaskRating, TaskRatingDto>();  
             CreateMap<Task, ReportDto>();  
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
