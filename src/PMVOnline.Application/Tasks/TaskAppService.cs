@@ -80,11 +80,10 @@ namespace PMVOnline.Tasks
 
             var users = await departmentManager.GetAllUserInDepartmentAsync(departments.Select(d => d.Id).ToArray());
             var leader = users.FirstOrDefault(d => d.IsLeader == true);
-            if (leader == null)
+            if (leader != null)
             {
-                throw new UserFriendlyException("Ban khong phai truong phong de rating");
+                task.LeaderId = leader.UserId;
             }
-            task.LeaderId = leader.UserId;
             var result = await taskRepository.InsertAsync(task, true);
 
             if (result == null)

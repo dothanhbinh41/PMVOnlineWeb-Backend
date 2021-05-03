@@ -25,10 +25,6 @@ namespace PMVOnline.Tasks
         public Guid LeaderId { get; set; }
 
 
-        public virtual ICollection<TaskAction> TaskHistory { get; set; } 
-        public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; } 
-        public virtual ICollection<TaskFile> TaskFiles { get; set; } 
-        public virtual ICollection<TaskRating> TaskRatings { get; set; } 
 
         [ForeignKey(nameof(AssigneeId))]
         public virtual AppUser Assignee { get; set; }
@@ -41,10 +37,15 @@ namespace PMVOnline.Tasks
          
         [ForeignKey(nameof(LastModifierId))]
         public virtual AppUser LastModifier { get; set; }
-        public virtual ICollection<TaskFollow> TaskFollows { get; set; }
-
+         
         [ForeignKey(nameof(LeaderId))]
         public virtual AppUser Leader { get; set; }
 
+        public virtual ICollection<TaskFollow> TaskFollows { get; set; }
+        public virtual ICollection<TaskComment> TaskComments { get; set; }
+        public virtual ICollection<TaskAction> TaskHistory { get; set; }
+        public virtual ICollection<ReferenceTask> ReferenceTasks { get; set; }
+        public virtual ICollection<TaskFile> TaskFiles { get; set; }
+        public virtual ICollection<TaskRating> TaskRatings { get; set; }
     }
 }

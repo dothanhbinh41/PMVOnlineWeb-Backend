@@ -3068,7 +3068,7 @@ namespace PMVOnline.Migrations
             modelBuilder.Entity("PMVOnline.Tasks.TaskComment", b =>
                 {
                     b.HasOne("PMVOnline.Tasks.Task", "Task")
-                        .WithMany()
+                        .WithMany("TaskComments")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3440,6 +3440,8 @@ namespace PMVOnline.Migrations
             modelBuilder.Entity("PMVOnline.Tasks.Task", b =>
                 {
                     b.Navigation("ReferenceTasks");
+
+                    b.Navigation("TaskComments");
 
                     b.Navigation("TaskFiles");
 

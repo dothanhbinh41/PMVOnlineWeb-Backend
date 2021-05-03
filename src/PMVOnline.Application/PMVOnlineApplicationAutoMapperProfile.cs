@@ -3,6 +3,7 @@ using PMVOnline.Departments;
 using PMVOnline.Files;
 using PMVOnline.Guides;
 using PMVOnline.Profiles;
+using PMVOnline.Reports;
 using PMVOnline.Targets;
 using PMVOnline.Tasks;
 using PMVOnline.Users;
@@ -48,6 +49,7 @@ namespace PMVOnline
             CreateMap<CreateDepartmentUserDto, DepartmentUser>();
             CreateMap<DeleteDepartmentUserDto, DepartmentUser>();
             CreateMap<Target, TargetDto>();  
+            CreateMap<Task, ReportDto>();  
             CreateMap<TaskFile, FileDto>()
                 .ForMember(d => d.Id, c => c.MapFrom(d => d.File.Id))
                 .ForMember(d => d.Name, c => c.MapFrom(d => d.File.Name))

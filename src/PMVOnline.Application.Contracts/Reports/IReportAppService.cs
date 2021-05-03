@@ -10,7 +10,7 @@ namespace PMVOnline.Reports
 {
     public interface IReportAppService
     {
-        Task<ReportDto[]> GetReportAsync(ReportRequestdto request);
+        Task<PagedResultDto<ReportDto>> GetReportAsync(ReportRequestdto request);
     }
 
     public class ReportDto

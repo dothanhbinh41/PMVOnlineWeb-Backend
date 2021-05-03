@@ -26,14 +26,13 @@ namespace PMVOnline.Targets
             this.targetRepostiory = targetRepostiory;
             this.departmentTargetsRepostiory = departmentTargetsRepostiory;
             this.targetManager = targetManager;
-        } 
+        }
 
         public async Task<TargetDto> AddTargetsAsync(AddTargetDto request)
         {
-            var target = await targetRepostiory.InsertAsync(new Target { Name = request.Name });
-            await departmentTargetsRepostiory.InsertAsync( new DepartmentTarget { TargetId = target.Id, DepartmentId = request.DepartmentId });
-            return ObjectMapper.Map<Target, TargetDto>(target);
-        } 
+            var result = await departmentTargetsRepostiory.InsertAsync(new DepartmentTarget { Target = new Target { Name = request.Name }, DepartmentId = request.DepartmentId });
+            return ObjectMapper.Map<Target, TargetDto>(result.Target);
+        }
 
         public async Task<bool> DeleteTargetsAsync(int id)
         {
@@ -59,16 +58,18 @@ namespace PMVOnline.Targets
             target.Name = request.Name;
             await targetRepostiory.UpdateAsync(target);
 
-
-            var department = await departmentTargetsRepostiory.FirstOrDefaultAsync(d => d.TargetId == id);
+            await CurrentUnitOfWork.SaveChangesAsync();
+            var department = await departmentTargetsRepostiory.FirstOrDefaultAsync(d => d.TargetId == id && !d.IsDeleted);
             if (department == null)
             {
                 await departmentTargetsRepostiory.InsertAsync(new DepartmentTarget { TargetId = id, DepartmentId = request.DepartmentId });
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
-            if (department.Id != request.DepartmentId)
+            if (department.DepartmentId != request.DepartmentId)
             {
                 await departmentTargetsRepostiory.DeleteAsync(department);
                 await departmentTargetsRepostiory.InsertAsync(new DepartmentTarget { TargetId = id, DepartmentId = request.DepartmentId });
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
 
             return ObjectMapper.Map<Target, TargetDto>(target);
