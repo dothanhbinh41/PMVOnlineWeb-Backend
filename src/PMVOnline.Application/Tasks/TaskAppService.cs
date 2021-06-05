@@ -533,6 +533,7 @@ namespace PMVOnline.Tasks
             if (assignee == CurrentUser.GetId())
             {
                 await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = request.Rating, IsLeader = false });
+                await CheckFinish(taskId);
                 return true;
             }
             var departments = await targetManager.GetDepartmentsByTargetAsync(task.TargetId);
@@ -544,6 +545,21 @@ namespace PMVOnline.Tasks
                 throw new UserFriendlyException("Ban khong phai truong phong de rating");
             }
             await taskRatings.InsertAsync(new TaskRating { TaskId = taskId, Rating = request.Rating, IsLeader = true });
+            await CheckFinish(taskId);
+            return true;
+        }
+
+        async Task<bool> CheckFinish(long taskId)
+        {
+            var count = taskRatings.Count(d => d.TaskId == taskId);
+            if (count <= 1)
+            {
+                return false;
+            }
+
+            var task = await taskRepository.GetAsync(taskId);
+            task.Status = Status.Done;
+            await taskRepository.UpdateAsync(task);
             return true;
         }
     }
