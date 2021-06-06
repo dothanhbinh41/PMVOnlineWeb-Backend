@@ -15,6 +15,7 @@ namespace PMVOnline.Tasks
         Task<string> GetNote(long id);
         Task<bool> SendComment(long id, CommentRequestDto request);
         Task<bool> ProcessTask(ProcessTaskRequest request);
+        Task<bool> DeleteTask(long id);
         Task<bool> RequestTask(RequestTaskRequest request);
         Task<bool> FinishTask(FinishTaskRequest request);
         Task<bool> ReopenTask(ReopenTaskRequest request);

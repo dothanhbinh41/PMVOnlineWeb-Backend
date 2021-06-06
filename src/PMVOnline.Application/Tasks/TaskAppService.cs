@@ -562,5 +562,18 @@ namespace PMVOnline.Tasks
             await taskRepository.UpdateAsync(task);
             return true;
         }
+
+        public async Task<bool> DeleteTask(long id)
+        {
+            var task = await taskRepository.GetAsync(id);
+            if (task.CreatorId != CurrentUser.GetId() || task.Status > Status.Pending)
+            {
+                return false;
+            }
+
+            await taskRepository.DeleteAsync(id);
+
+            return true;
+        }
     }
 }
