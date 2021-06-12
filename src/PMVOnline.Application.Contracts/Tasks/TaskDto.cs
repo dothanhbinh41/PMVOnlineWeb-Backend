@@ -159,6 +159,7 @@ namespace PMVOnline.Tasks
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public Guid[] Users { get; set; }
+        public Priority? Priority { get; set; }
     }
 
     public class RatingRequestDto

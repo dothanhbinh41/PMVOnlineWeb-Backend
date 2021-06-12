@@ -296,7 +296,10 @@ namespace PMVOnline.Tasks
 
             var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                    .Where(d => d.Status != Status.Done &&
-                   (d.TaskFollows.Any(c => c.UserId == uid && c.Followed) || (d.CreatorId == uid && d.Status != Status.Pending && d.Status != Status.Incompleted && d.Status != Status.LeaderRated) || (d.AssigneeId == uid && d.Status != Status.Completed && d.Status != Status.Incompleted && d.Status != Status.LeaderRated && d.Status != Status.Rated) || (d.LeaderId == uid && (d.Status == Status.Completed || d.Status == Status.Rated))))
+                   (d.TaskFollows.Any(c => c.UserId == uid && c.Followed)
+                   || (d.CreatorId == uid && d.Status != Status.Pending && d.Status != Status.Incompleted && d.Status != Status.LeaderRated) 
+                   || (d.AssigneeId == uid && d.Status != Status.Completed && d.Status != Status.Incompleted && d.Status != Status.LeaderRated && d.Status != Status.Rated) 
+                   || (d.LeaderId == uid && (d.Status == Status.Completed || d.Status == Status.Rated))))
                    .OrderByDescending(d => d.LastModificationTime)
                    .ToArray();
             return ObjectMapper.Map<Task[], MyTaskDto[]>(userTasks);
@@ -316,6 +319,7 @@ namespace PMVOnline.Tasks
             {
                 var allTask = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator))
                     .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
+                    .WhereIf(request.Priority.HasValue, d => d.Priority == request.Priority.Value)
                     .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                     .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
                     .OrderByDescending(d => d.Id)
@@ -335,6 +339,7 @@ namespace PMVOnline.Tasks
                         usersInDeparment.Contains(d.AssigneeId) ||
                         d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
                         d.CreatorId == uid)
+                    .WhereIf(request.Priority.HasValue, d => d.Priority == request.Priority.Value)
                     .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
                     .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                     .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
@@ -350,6 +355,7 @@ namespace PMVOnline.Tasks
                        d.TaskFollows.Any(c => c.UserId == uid && c.Followed) ||
                        d.CreatorId == uid ||
                        d.AssigneeId == uid)
+                   .WhereIf(request.Priority.HasValue, d => d.Priority == request.Priority.Value)
                    .WhereIf(request.StartDate.HasValue, d => d.CreationTime.Date >= request.StartDate.Value.Date)
                    .WhereIf(request.EndDate.HasValue, d => d.CreationTime.Date <= request.EndDate.Value.Date)
                    .WhereIf(request.Users != null && request.Users.Length > 0, d => request.Users.Contains(d.AssigneeId) || request.Users.Contains(d.CreatorId.Value))
