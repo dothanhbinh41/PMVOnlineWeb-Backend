@@ -230,7 +230,7 @@ namespace PMVOnline.Tasks
         {
             var uid = CurrentUser.GetId();
             var task = await taskRepository.GetAsync(d => d.Id == request.Id);
-            if (task.Status != Status.Completed || task.Status != Status.Incompleted)
+            if (task.Status != Status.Completed || task.Status != Status.Incompleted || task.Status != Status.Rejected)
             {
                 return false;
             }
@@ -297,8 +297,8 @@ namespace PMVOnline.Tasks
             var userTasks = (await taskRepository.WithDetailsAsync(d => d.LastModifier, d => d.Assignee, d => d.Creator, d => d.TaskFollows))
                    .Where(d => d.Status != Status.Done &&
                    (d.TaskFollows.Any(c => c.UserId == uid && c.Followed)
-                   || (d.CreatorId == uid && d.Status != Status.Pending && d.Status != Status.Incompleted && d.Status != Status.LeaderRated) 
-                   || (d.AssigneeId == uid && d.Status != Status.Completed && d.Status != Status.Incompleted && d.Status != Status.LeaderRated && d.Status != Status.Rated) 
+                   || (d.CreatorId == uid && d.Status != Status.Pending && d.Status != Status.Incompleted && d.Status != Status.LeaderRated)
+                   || (d.AssigneeId == uid && d.Status != Status.Completed && d.Status != Status.Incompleted && d.Status != Status.LeaderRated && d.Status != Status.Rated)
                    || (d.LeaderId == uid && (d.Status == Status.Completed || d.Status == Status.Rated))))
                    .OrderByDescending(d => d.LastModificationTime)
                    .ToArray();
