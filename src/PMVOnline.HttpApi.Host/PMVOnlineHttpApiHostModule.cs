@@ -234,15 +234,15 @@ namespace PMVOnline
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            app.UseSwagger();
-            app.UseAbpSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PMVOnline API");
+            //app.UseSwagger();
+            //app.UseAbpSwaggerUI(c =>
+            //{
+            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PMVOnline API");
 
-                var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-                c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-                c.OAuthClientSecret(configuration["AuthServer:SwaggerClientSecret"]);
-            });
+            //    var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
+            //    c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+            //    c.OAuthClientSecret(configuration["AuthServer:SwaggerClientSecret"]);
+            //});
 
             app.UseAuditing();
             app.UseAbpSerilogEnrichers();

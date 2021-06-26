@@ -22,7 +22,7 @@ namespace PMVOnline.Tasks
         public Status Status { get; set; }
         public ActionType LastAction { get; set; }
         public Guid AssigneeId { get; set; }
-        public Guid LeaderId { get; set; }
+        public Guid? LeaderId { get; set; }
 
 
 

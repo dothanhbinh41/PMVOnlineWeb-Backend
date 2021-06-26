@@ -7,7 +7,7 @@ namespace PMVOnline.Controllers
     {
         public ActionResult Index()
         {
-            return Redirect("~/swagger");
+           return Redirect("https://task.pmvina.com");
         }
     }
 }

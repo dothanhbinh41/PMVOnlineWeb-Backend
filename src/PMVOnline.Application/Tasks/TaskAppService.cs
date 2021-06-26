@@ -88,7 +88,7 @@ namespace PMVOnline.Tasks
 
             if (result == null)
             {
-                throw new Exception();
+                throw new UserFriendlyException("");
             }
 
             await taskActionRepository.InsertAsync(new TaskAction { TaskId = task.Id, Action = ActionType.CreateTask });
